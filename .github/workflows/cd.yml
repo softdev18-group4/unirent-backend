@@ -2,7 +2,7 @@ name: Deploy to Self-Hosted
 
 on:
     workflow_run:
-        workflows: [ ci ]
+        workflows: [Build and Test]
         branches: [ "main" ]
         types:
             - completed
