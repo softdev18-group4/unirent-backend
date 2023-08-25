@@ -1,0 +1,26 @@
+name: Deploy to Self-Hosted
+
+on:
+    workflow_run:
+        workflows: [ ci ]
+        branches: [ "main" ]
+        types:
+            - completed
+
+env:
+    APP_PORT: ${{ secrets.APP_PORT }}
+
+jobs:
+    deploy:
+        runs-on: self-hosted
+        steps:
+            - name: Copy repository
+              uses: actions/checkout@v3
+
+            - name: Build the docker-compose stack
+              run: docker-compose -f docker-compose.yml up -d --build
+
+
+
+
+        

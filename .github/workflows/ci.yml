@@ -1,0 +1,35 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+    - name: Copy repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies 
+      run: npm ci
+
+    - name: Run Build
+      run: npm build --if-present
+    
+    - name: Run ESLint
+      run: npm lint
+
+    - name: Run Test
+      run: npm test
