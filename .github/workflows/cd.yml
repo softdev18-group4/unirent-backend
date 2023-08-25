@@ -17,6 +17,9 @@ jobs:
             - name: Copy repository
               uses: actions/checkout@v3
 
+            - name: check whoami
+              run: whoami
+
             - name: Build the docker-compose stack
               run: docker compose up -d --build
 
