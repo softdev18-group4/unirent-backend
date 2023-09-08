@@ -12,8 +12,8 @@ services:
       - '${APP_PORT}:${APP_PORT}'
     restart: always
     networks:
-      - unirent-backend
+      - unirent
 
 networks:
-  unirent-backend:
+  unirent:
     driver: bridge
