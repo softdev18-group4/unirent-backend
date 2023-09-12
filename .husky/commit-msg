@@ -8,3 +8,6 @@ npx --no-install commitlint --edit ||
             Commit Message Check Failed. Use this format => type(scope?): subject';
     false;
 )
+
+# If everything passes... Now we can commit
+echo '✅✅✅✅ You win this time... I am committing this now. ✅✅✅✅' 
