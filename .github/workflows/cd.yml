@@ -9,6 +9,7 @@ on:
 
 env:
     APP_PORT: ${{ secrets.APP_PORT }}
+    DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 jobs:
     deploy:
