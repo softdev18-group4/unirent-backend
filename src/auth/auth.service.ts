@@ -1,12 +1,28 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { SignUpDto } from './dto/signup.dto';
+import { SignInDto } from './dto/signin.dto';
 import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  private generateJwtToken(userId: string) {
+    const payload = { sub: userId };
+    return this.jwtService.sign(payload);
+  }
 
   async signup(signUpDto: SignUpDto) {
     const hashedPassword = await bcrypt.hash(signUpDto.password, 10);
@@ -15,7 +31,7 @@ export class AuthService {
         ...signUpDto,
         password: hashedPassword,
       });
-      return createdUser;
+      return { access_token: this.generateJwtToken(createdUser.id) };
     } catch (error) {
       console.log(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -29,5 +45,28 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async signin(signInDto: SignInDto) {
+    const user = await this.userService.findOne(signInDto.email);
+
+    if (!user) {
+      throw new NotFoundException(
+        `No user found for email: ${signInDto.email}`,
+      );
+    }
+
+    const isPasswordValid = bcrypt.compareSync(
+      signInDto.password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid password');
+    }
+
+    return {
+      access_token: this.generateJwtToken(user.email),
+    };
   }
 }

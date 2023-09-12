@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
@@ -26,5 +26,9 @@ export class UsersService {
       where,
       orderBy,
     });
+  }
+
+  async findOne(email: string) {
+    return await this.prisma.user.findUnique({ where: { email } });
   }
 }
