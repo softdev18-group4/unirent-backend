@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - APP_PORT
+      - DATABASE_URL
     ports:
       - '${APP_PORT}:${APP_PORT}'
     restart: always
