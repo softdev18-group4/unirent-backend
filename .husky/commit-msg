@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Checking Commit Message
+npx --no-install commitlint --edit || 
+(
+    echo '🤢🤮🤢🤮 Its FOKING RAW - Your commit message looks disgusting. 🤢🤮🤢🤮
+            Commit Message Check Failed. Use this format => type(scope?): subject';
+    false;
+)
