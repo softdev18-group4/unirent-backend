@@ -17,6 +17,18 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsNumber()
   JWT_EXPIRATION_TIME: number;
+
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_CLIENT_ID: string;
+
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_CLIENT_SECRET: string;
+
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_CALLBACK_URL: string;
 }
 
 export function validate(config: Record<string, unknown>) {
