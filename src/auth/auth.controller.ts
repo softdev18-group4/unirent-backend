@@ -10,7 +10,7 @@ export class AuthController {
   constructor(
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
-  ) { }
+  ) {}
 
   @Post('sign-up')
   async signup(@Body() signUpDto: SignUpDto) {
@@ -25,7 +25,7 @@ export class AuthController {
   @Get('google')
   @UseGuards(GoogleOauthGuard)
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async auth() { }
+  async auth() {}
 
   @Get('callback/google')
   @UseGuards(GoogleOauthGuard)
