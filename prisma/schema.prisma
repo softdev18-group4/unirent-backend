@@ -14,18 +14,30 @@ model User {
   email     String    @unique
   verified  Boolean   @default(false)
   password  String?
-  products  Product[] @relation("userProducts")
   role      String    @default("USER")
+  products  Product[] @relation("userProducts")
+  reviews   Review[]  @relation("userReviews")
 
   @@map("users")
 }
 
 model Product {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String
-  ownerId     String @db.ObjectId
-  owner       User   @relation("userProducts", fields: [ownerId], references: [id])
+  ownerId     String   @db.ObjectId
+  owner       User     @relation("userProducts", fields: [ownerId], references: [id])
+  reviews     Review[] @relation("productReviews")
 
   @@map("products")
+}
+
+model Review {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  text       String
+  rating     Float
+  reviewerId String  @db.ObjectId
+  reviewer   User    @relation("userReviews", fields: [reviewerId], references: [id])
+  productId  String  @db.ObjectId
+  product    Product @relation("productReviews", fields: [productId], references: [id])
 }

@@ -9,7 +9,7 @@ export class ProductsService {
 
   async create(createProductDto: CreateProductDto) {
     return this.prisma.product.create({
-      data: { ...createProductDto, providerId: '650058a5c88f63cbbb730f86' },
+      data: { ...createProductDto, ownerId: '650058a5c88f63cbbb730f86' },
     });
   }
 
