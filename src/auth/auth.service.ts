@@ -109,6 +109,7 @@ export class AuthService {
         lastName: user.lastName,
         password: null,
         role: Role.User,
+        verified: true,
       },
     );
 
