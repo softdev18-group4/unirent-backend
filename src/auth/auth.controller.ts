@@ -26,7 +26,6 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleOauthGuard)
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async auth() {}
 
   @Get('callback/google')
@@ -39,5 +38,11 @@ export class AuthController {
   @UseGuards(JwtGuard)
   async profile(@GetUser() user) {
     return user;
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() body) {
+    const { email } = body;
+    return this.authService.createResetToken(email);
   }
 }
