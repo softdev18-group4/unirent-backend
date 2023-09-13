@@ -34,4 +34,9 @@ export class UsersController {
 
     return users;
   }
+
+  @Get()
+  async findOne(@Body() email: string) {
+    return await this.usersService.findOne(email);
+  }
 }
