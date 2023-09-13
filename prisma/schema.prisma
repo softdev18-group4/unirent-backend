@@ -8,10 +8,13 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  email    String    @unique
-  password String
-  products Product[] @relation("userProducts")
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  firstName String
+  lastName  String
+  email      String    @unique
+  password  String?
+  products   Product[] @relation("userProducts")
+  role       String    @default("USER")
 
   @@map("users")
 }
@@ -20,8 +23,8 @@ model Product {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String
-  providerId  String @db.ObjectId
-  provider    User   @relation("userProducts", fields: [providerId], references: [id])
+  ownerId    String @db.ObjectId
+  owner       User   @relation("userProducts", fields: [ownerId], references: [id])
 
   @@map("products")
 }

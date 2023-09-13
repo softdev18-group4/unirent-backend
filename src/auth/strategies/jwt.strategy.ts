@@ -1,35 +1,35 @@
-// import { Injectable, UnauthorizedException } from '@nestjs/common';
-// import { ConfigService } from '@nestjs/config';
-// import { InjectModel } from '@nestjs/mongoose';
-// import { PassportStrategy } from '@nestjs/passport';
-// import { Model } from 'mongoose';
-// import { Strategy, ExtractJwt } from 'passport-jwt';
-// import { IUser } from '@/common/interfaces/user.interface';
-// import { User } from '@/modules/users/schemas/user.schema';
-// import { IJwtPayload } from '../interfaces/jwt.interface';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
-// @Injectable()
-// export class JwtStrategy extends PassportStrategy(Strategy) {
-//   constructor(
-//     configService: ConfigService,
-//     @InjectModel(User.name) private userModel: Model<IUser>,
-//   ) {
-//     super({
-//       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-//       secretOrKey: configService.get('jwtSecret'),
-//     });
-//   }
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy, ExtractJwt } from 'passport-jwt';
+import { IJwtPayload } from '../interfaces/jwt.interface';
+import { UsersService } from '@/users/users.service';
 
-//   async validate(payload: IJwtPayload): Promise<IUser> {
-//     const user = await this.userModel
-//       .findOne({ _id: payload.sub })
-//       .select('-password')
-//       .exec();
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(
+    configService: ConfigService,
+    private readonly userService: UsersService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: configService.get('JWT_SECRET'),
+    });
+  }
 
-//     if (!user) {
-//       throw new UnauthorizedException();
-//     }
+  async validate(payload: IJwtPayload) {
+    const userExisting = await this.userService.findOne({
+      id: payload.sub,
+    });
 
-//     return user;
-//   }
-// }
+    if (!userExisting) {
+      throw new UnauthorizedException();
+    }
+
+    return {
+      ...userExisting,
+      password: undefined,
+    };
+  }
+}

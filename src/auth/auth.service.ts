@@ -11,6 +11,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from './enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -19,27 +20,41 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  private generateJwtToken(userId: string) {
-    const payload = { sub: userId };
+  private generateToken({
+    userId,
+    role,
+  }: {
+    userId: string;
+    role: string;
+  }): string {
+    const payload = { sub: userId, role };
     return this.jwtService.sign(payload);
   }
 
   async signUp(signUpDto: SignUpDto) {
-    const hashedPassword = await bcrypt.hash(signUpDto.password, 10);
     try {
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(signUpDto.password, salt);
+
       const createdUser = await this.userService.create({
         ...signUpDto,
         password: hashedPassword,
       });
-      return { access_token: this.generateJwtToken(createdUser.id) };
+
+      return {
+        access_token: this.generateToken({
+          userId: createdUser.id,
+          role: Role.User,
+        }),
+      };
     } catch (error) {
-      console.log(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new HttpException(
           'User with that email already exists',
           HttpStatus.BAD_REQUEST,
         );
       }
+
       throw new HttpException(
         'Something went wrong',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -48,36 +63,60 @@ export class AuthService {
   }
 
   async signIn(signInDto: SignInDto) {
-    const user = await this.userService.findOne(signInDto.email);
+    try {
+      const userExisting = await this.userService.findOne({
+        email: signInDto.email,
+      });
 
-    if (!user) {
-      throw new NotFoundException(
-        `No user found for email: ${signInDto.email}`,
+      if (!userExisting) {
+        throw new NotFoundException(
+          `No user found for email: ${signInDto.email}`,
+        );
+      }
+
+      const isPasswordValid = bcrypt.compareSync(
+        signInDto.password,
+        userExisting.password,
+      );
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid password');
+      }
+
+      return {
+        access_token: this.generateToken({
+          userId: userExisting.id,
+          role: userExisting.role,
+        }),
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
-    const isPasswordValid = bcrypt.compareSync(
-      signInDto.password,
-      user.password,
-    );
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid password');
-    }
-
-    return {
-      access_token: this.generateJwtToken(user.id),
-    };
   }
 
-  async signInWithGoogle(user) {
-    const userExisting = await this.userService.findOne(user.email);
-    if (!userExisting) {
-      throw new NotFoundException(`No user found for email: ${user.email}`);
-    }
+  async OAuthWithGoogle(user) {
+    console.log(user);
+    const userExisting = await this.userService.findOneAndCreateIfNotExist(
+      {
+        email: user.email,
+      },
+      {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        password: null,
+        role: Role.User,
+      },
+    );
 
     return {
-      access_token: this.generateJwtToken(user.id),
+      access_token: this.generateToken({
+        userId: userExisting.id,
+        role: userExisting.role,
+      }),
     };
   }
 }
