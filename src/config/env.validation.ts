@@ -16,7 +16,7 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsNumber()
-  JWT_EXPIRATION_TIME: number;
+  JWT_EXPIRES_IN: number;
 
   @IsNotEmpty()
   @IsString()

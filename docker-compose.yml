@@ -9,6 +9,11 @@ services:
     environment:
       - APP_PORT
       - DATABASE_URL
+      - JWT_SECRET
+      - JWT_EXPIRES_IN
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
+      - GOOGLE_CALLBACK_URL
     ports:
       - '${APP_PORT}:${APP_PORT}'
     restart: always
