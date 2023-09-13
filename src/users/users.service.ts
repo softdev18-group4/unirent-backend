@@ -28,7 +28,34 @@ export class UsersService {
     });
   }
 
-  async findOne(email: string) {
-    return await this.prisma.user.findUnique({ where: { email: email } });
+  async findOne(query: Prisma.UserWhereUniqueInput): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: query,
+    });
+  }
+
+  async findOneAndCreateIfNotExist(
+    query: Prisma.UserWhereUniqueInput,
+    data: Prisma.UserCreateInput,
+  ): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: query,
+    });
+
+    if (user) {
+      return user;
+    }
+
+    return this.prisma.user.create({
+      data,
+    });
+  }
+
+  async findById(id: string) {
+    return await this.prisma.user.findUnique({ where: { id } });
+  }
+
+  async findByEmail(email: string) {
+    return await this.prisma.user.findUnique({ where: { email } });
   }
 }

@@ -36,7 +36,7 @@ export class UsersController {
   }
 
   @Get()
-  async findOne(@Body() email: string) {
-    return await this.usersService.findOne(email);
+  async findByEmail(@Body() email: string) {
+    return await this.usersService.findByEmail(email);
   }
 }
