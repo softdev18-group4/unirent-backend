@@ -4,6 +4,8 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { ConfigService } from '@nestjs/config';
+import { JwtGuard } from './guards/jwt.guard';
+import { GetUser } from './decorators/get-users.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -31,5 +33,11 @@ export class AuthController {
   @UseGuards(GoogleOauthGuard)
   async googleAuthCallback(@Req() req) {
     return await this.authService.OAuthWithGoogle(req.user);
+  }
+
+  @Get('profile')
+  @UseGuards(JwtGuard)
+  async profile(@GetUser() user) {
+    return user;
   }
 }

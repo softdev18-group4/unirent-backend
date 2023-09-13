@@ -12,7 +12,7 @@ model User {
   firstName String
   lastName  String
   email     String    @unique
-  verified  Boolean   @default(false)
+  verified  Boolean?   @default(false)
   password  String?
   role      String    @default("USER")
   products  Product[] @relation("userProducts")
