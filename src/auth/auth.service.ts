@@ -22,7 +22,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   private generateToken({
     userId,
@@ -151,7 +151,7 @@ export class AuthService {
     if (
       resetTokenExisting &&
       (new Date().getTime() - resetTokenExisting.timestamp.getTime()) / 60000 <
-      15
+        15
     ) {
       throw new HttpException(
         'RESET_PASSWORD.EMAIL_SENT_RECENTLY',

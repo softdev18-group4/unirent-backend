@@ -11,7 +11,6 @@ import { AuthController } from './auth.controller';
 
 import { UsersModule } from '@/users/users.module';
 
-
 @Module({
   imports: [
     UsersModule,
@@ -28,4 +27,4 @@ import { UsersModule } from '@/users/users.module';
   controllers: [AuthController],
   providers: [AuthService, PrismaService, GoogleStrategy, JwtStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}

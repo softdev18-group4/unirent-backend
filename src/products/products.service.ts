@@ -5,10 +5,11 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto, currentUser) {
-    const { name, description, specifications, availableDays, rentalOptions } = createProductDto
+    const { name, description, specifications, availableDays, rentalOptions } =
+      createProductDto;
 
     const newProduct = await this.prisma.product.create({
       data: {
@@ -18,19 +19,19 @@ export class ProductsService {
         ownerId: currentUser.id as string,
         availableDays: {
           startDate: new Date(availableDays.startDate),
-          endDate: new Date(availableDays.endDate)
+          endDate: new Date(availableDays.endDate),
         },
         availability: true,
         rentalOptions: {
-          create: rentalOptions.map(option => ({
+          create: rentalOptions.map((option) => ({
             type: option.type,
-            priceRate: option.priceRate
-          }))
-        }
-      }
+            priceRate: option.priceRate,
+          })),
+        },
+      },
     });
 
-    return newProduct
+    return newProduct;
   }
 
   async findById(productId: string) {
