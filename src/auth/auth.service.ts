@@ -7,12 +7,14 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { ResetToken, Prisma } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import { Role } from '@/common/enums/role.enum';
+import { PrismaService } from '@/prisma/prisma.service';
+
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
-import { Role } from './enums/role.enum';
-import { PrismaService } from '@/prisma/prisma.service';
+
+import { UsersService } from '@/users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +22,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   private generateToken({
     userId,
@@ -149,7 +151,7 @@ export class AuthService {
     if (
       resetTokenExisting &&
       (new Date().getTime() - resetTokenExisting.timestamp.getTime()) / 60000 <
-        15
+      15
     ) {
       throw new HttpException(
         'RESET_PASSWORD.EMAIL_SENT_RECENTLY',

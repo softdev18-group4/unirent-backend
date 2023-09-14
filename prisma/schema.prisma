@@ -14,7 +14,7 @@ model User {
   email      String       @unique
   verified   Boolean?     @default(false)
   password   String?
-  role       String       @default("USER")
+  role       String       @default("user")
   products   Product[]    @relation("userProducts")
   reviews    Review[]     @relation("userReviews")
   ResetToken ResetToken[] @relation("userResetToken")
@@ -23,14 +23,28 @@ model User {
 }
 
 model Product {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  ownerId     String   @db.ObjectId
-  owner       User     @relation("userProducts", fields: [ownerId], references: [id])
-  reviews     Review[] @relation("productReviews")
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  description    String
+  ownerId        String         @db.ObjectId
+  owner          User           @relation("userProducts", fields: [ownerId], references: [id])
+  reviews        Review[]       @relation("productReviews")
+  rentalOptions  RentalOption[] @relation("productRentalOptions")
+  specifications Specifications
+  availability   Boolean
+  availableDays  AvailableDays
 
   @@map("products")
+}
+
+model RentalOption {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  productId String  @db.ObjectId
+  product   Product @relation("productRentalOptions", fields: [productId], references: [id])
+  type      String
+  priceRate Float
+
+  @@map("rental_options")
 }
 
 model Review {
@@ -41,6 +55,8 @@ model Review {
   reviewer   User    @relation("userReviews", fields: [reviewerId], references: [id])
   productId  String  @db.ObjectId
   product    Product @relation("productReviews", fields: [productId], references: [id])
+
+  @@map("reviews")
 }
 
 model ResetToken {
@@ -51,4 +67,18 @@ model ResetToken {
   timestamp DateTime
 
   @@map("reset_tokens")
+}
+
+type Specifications {
+  brand       String
+  model       String
+  processor   String
+  graphicCard String
+  ramSize     Int
+  storageSize Int
+}
+
+type AvailableDays {
+  startDate DateTime
+  endDate   DateTime
 }
