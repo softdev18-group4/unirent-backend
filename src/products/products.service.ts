@@ -2,10 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
+import { Query as ExpressQuery } from 'express-serve-static-core';
+import { Prisma, Product } from '@prisma/client';
+
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto, currentUser) {
     const { name, description, specifications, availableDays, rentalOptions } =
@@ -49,20 +52,24 @@ export class ProductsService {
     return product;
   }
 
-  findAll() {
+  async findAll() {
     return this.prisma.product.findMany();
+  }
+
+  async findByPagination(page: number = 1, perPage: number = 2) {
+    const skip = (page - 1) * perPage;
+    const query = await this.prisma.product.findMany({
+      skip: skip,
+      take: +perPage,
+      
+    });
+    return query;
   }
 
   findOne(id: string) {
     return this.prisma.product.findUnique({ where: { id } });
   }
 
-  // update(id: string, updateProductDto: UpdateProductDto) {
-  //   return this.prisma.product.update({
-  //     where: { id },
-  //     data: updateProductDto,
-  //   });
-  // }
 
   remove(id: string) {
     return this.prisma.product.delete({ where: { id } });
