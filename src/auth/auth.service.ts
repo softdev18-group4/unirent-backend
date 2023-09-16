@@ -6,18 +6,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { Prisma } from '@prisma/client';
+import { ResetToken, Prisma } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import { Role } from '@/common/enums/role.enum';
+import { PrismaService } from '@/prisma/prisma.service';
+
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
-import { Role } from './enums/role.enum';
+
+import { UsersService } from '@/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
   private generateToken({
@@ -29,6 +33,19 @@ export class AuthService {
   }): string {
     const payload = { sub: userId, role };
     return this.jwtService.sign(payload);
+  }
+
+  private generateResetToken(length: number): string {
+    const charset =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let password = '';
+
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      password += charset.charAt(randomIndex);
+    }
+
+    return password;
   }
 
   async signUp(signUpDto: SignUpDto) {
@@ -119,5 +136,44 @@ export class AuthService {
         role: userExisting.role,
       }),
     };
+  }
+
+  async createResetToken(email: string): Promise<ResetToken> {
+    const userExisting = await this.userService.findByEmail(email);
+    if (!userExisting) {
+      throw new NotFoundException(`No user found for email: ${email}`);
+    }
+
+    const resetTokenExisting = await this.prisma.resetToken.findFirst({
+      where: { userId: userExisting.id },
+    });
+
+    if (
+      resetTokenExisting &&
+      (new Date().getTime() - resetTokenExisting.timestamp.getTime()) / 60000 <
+        15
+    ) {
+      throw new HttpException(
+        'RESET_PASSWORD.EMAIL_SENT_RECENTLY',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } else {
+      const resetToken = await this.prisma.resetToken.create({
+        data: {
+          userId: userExisting.id,
+          token: this.generateResetToken(21),
+          timestamp: new Date(),
+        },
+      });
+
+      if (!resetToken) {
+        throw new HttpException(
+          "Can't create ResetToken",
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      return resetToken;
+    }
   }
 }

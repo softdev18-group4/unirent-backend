@@ -1,9 +1,14 @@
 import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+import { GoogleOauthGuard } from '@/common/guards/google-oauth.guard';
+import { JwtGuard } from '@/common/guards/jwt.guard';
+import { GetUser } from '@/common/decorators/get-users.decorator';
+
 import { AuthService } from './auth.service';
+
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { GoogleOauthGuard } from './guards/google-oauth.guard';
-import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
@@ -24,12 +29,23 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleOauthGuard)
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async auth() {}
 
   @Get('callback/google')
   @UseGuards(GoogleOauthGuard)
   async googleAuthCallback(@Req() req) {
     return await this.authService.OAuthWithGoogle(req.user);
+  }
+
+  @Get('profile')
+  @UseGuards(JwtGuard)
+  async profile(@GetUser() user) {
+    return user;
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() body) {
+    const { email } = body;
+    return this.authService.createResetToken(email);
   }
 }
