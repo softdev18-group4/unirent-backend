@@ -1,11 +1,18 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
+import { Query as ExpressQuery } from 'express-serve-static-core';
+import { Prisma, Product } from '@prisma/client';
+
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto, currentUser) {
     const { name, description, specifications, availableDays, rentalOptions } =
@@ -49,8 +56,18 @@ export class ProductsService {
     return product;
   }
 
-  findAll() {
+  async findAll() {
     return this.prisma.product.findMany();
+  }
+
+  async findByPagination(page: number = 1, perPage: number = 2) {
+    const skip = (page - 1) * perPage;
+    const query = await this.prisma.product.findMany({
+      skip: skip,
+      take: +perPage,
+
+    });
+    return query;
   }
 
   findOne(id: string) {
@@ -58,7 +75,8 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto, currentUser) {
-    const { name, description, specifications, availableDays, rentalOptions } = updateProductDto;
+    const { name, description, specifications, availableDays, rentalOptions } =
+      updateProductDto;
 
     try {
       // Check if the product exists
@@ -72,7 +90,9 @@ export class ProductsService {
 
       // Check if the current user has permission to update this product
       if (existingProduct.ownerId !== currentUser.id) {
-        throw new BadRequestException('You do not have permission to update this product');
+        throw new BadRequestException(
+          'You do not have permission to update this product',
+        );
       }
 
       // Update the product
@@ -99,10 +119,10 @@ export class ProductsService {
               update: {
                 type: option.type,
                 priceRate: option.priceRate,
-              }
-            }))
-          }
-        }
+              },
+            })),
+          },
+        },
       });
 
       return updatedProduct;
@@ -110,7 +130,6 @@ export class ProductsService {
       throw new BadRequestException('Failed to update product');
     }
   }
-
 
   remove(id: string) {
     return this.prisma.product.delete({ where: { id } });
