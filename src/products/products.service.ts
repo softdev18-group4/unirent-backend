@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto, currentUser) {
     const { name, description, specifications, availableDays, rentalOptions } =
@@ -57,12 +57,60 @@ export class ProductsService {
     return this.prisma.product.findUnique({ where: { id } });
   }
 
-  // update(id: string, updateProductDto: UpdateProductDto) {
-  //   return this.prisma.product.update({
-  //     where: { id },
-  //     data: updateProductDto,
-  //   });
-  // }
+  async update(id: string, updateProductDto: UpdateProductDto, currentUser) {
+    const { name, description, specifications, availableDays, rentalOptions } = updateProductDto;
+
+    try {
+      // Check if the product exists
+      const existingProduct = await this.prisma.product.findUnique({
+        where: { id },
+      });
+
+      if (!existingProduct) {
+        throw new NotFoundException('Product not found');
+      }
+
+      // Check if the current user has permission to update this product
+      if (existingProduct.ownerId !== currentUser.id) {
+        throw new BadRequestException('You do not have permission to update this product');
+      }
+
+      // Update the product
+      const updatedProduct = await this.prisma.product.update({
+        where: { id },
+        data: {
+          name,
+          description,
+          specifications,
+          availableDays: {
+            update: {
+              startDate: new Date(availableDays.startDate),
+              endDate: new Date(availableDays.endDate),
+            },
+          },
+          availability: true,
+          rentalOptions: {
+            upsert: rentalOptions.map((option) => ({
+              where: { type: option.type },
+              create: {
+                type: option.type,
+                priceRate: option.priceRate,
+              },
+              update: {
+                type: option.type,
+                priceRate: option.priceRate,
+              }
+            }))
+          }
+        }
+      });
+
+      return updatedProduct;
+    } catch (error) {
+      throw new BadRequestException('Failed to update product');
+    }
+  }
+
 
   remove(id: string) {
     return this.prisma.product.delete({ where: { id } });
