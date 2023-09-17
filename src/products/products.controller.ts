@@ -18,10 +18,9 @@ import { get } from 'http';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 import { Product } from '@prisma/client';
 
-
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   @UseGuards(JwtGuard)
   @Post()
@@ -33,7 +32,6 @@ export class ProductsController {
   findAll() {
     return this.productsService.findAll();
   }
-  
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -47,7 +45,6 @@ export class ProductsController {
   ) {
     return await this.productsService.findByPagination(page, perPage);
   }
-
 
   @Delete(':id')
   remove(@Param('id') id: string) {

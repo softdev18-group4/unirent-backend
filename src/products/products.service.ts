@@ -9,7 +9,6 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 import { Prisma, Product } from '@prisma/client';
 
-
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
@@ -65,7 +64,6 @@ export class ProductsService {
     const query = await this.prisma.product.findMany({
       skip: skip,
       take: +perPage,
-
     });
     return query;
   }
