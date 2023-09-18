@@ -21,7 +21,7 @@ import { Product } from '@prisma/client';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   @UseGuards(JwtGuard)
   @Post()
@@ -34,6 +34,7 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findById(id);
@@ -41,8 +42,12 @@ export class ProductsController {
 
   @UseGuards(JwtGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() UpdateProductDto, @GetUser() currentUser) {
-    return this.productsService.update(id, UpdateProductDto, currentUser)
+  update(
+    @Param('id') id: string,
+    @Body() UpdateProductDto,
+    @GetUser() currentUser,
+  ) {
+    return this.productsService.update(id, UpdateProductDto, currentUser);
   }
 
   @Get('/paginate/filter')

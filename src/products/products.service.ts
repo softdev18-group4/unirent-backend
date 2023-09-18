@@ -12,7 +12,7 @@ import { type } from 'os';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto, currentUser) {
     const { name, description, specifications, availableDays, rentalOptions } =
@@ -38,7 +38,7 @@ export class ProductsService {
       },
       include: {
         rentalOptions: true,
-      }
+      },
     });
 
     return newProduct;
@@ -85,7 +85,7 @@ export class ProductsService {
         where: { id },
         include: {
           rentalOptions: true,
-        }
+        },
       });
 
       if (!existingProduct) {
@@ -113,27 +113,27 @@ export class ProductsService {
             },
           },
           availability: true,
-        }
-      })
+        },
+      });
 
       for (const rentalOption of rentalOptions) {
-        const existingRental = await existingProduct.rentalOptions.find((rental) => rental.type === rentalOption.type)
+        const existingRental = await existingProduct.rentalOptions.find(
+          (rental) => rental.type === rentalOption.type,
+        );
         if (existingRental) {
           if (rentalOption.isSelected) {
             await this.prisma.rentalOption.update({
               where: { id: existingRental.id },
               data: {
-                priceRate: rentalOption.priceRate
-              }
+                priceRate: rentalOption.priceRate,
+              },
             });
-          }
-          else {
+          } else {
             await this.prisma.rentalOption.delete({
               where: { id: existingRental.id },
             });
           }
-        }
-        else if (rentalOption.isSelected) {
+        } else if (rentalOption.isSelected) {
           await this.prisma.rentalOption.create({
             data: {
               productId: existingProduct.id,
@@ -150,14 +150,13 @@ export class ProductsService {
     }
   }
 
-
   async remove(id: string, currentUser) {
     try {
       const existingProduct = await this.prisma.product.findUnique({
         where: { id },
         include: {
           rentalOptions: true,
-        }
+        },
       });
 
       if (!existingProduct) {
@@ -176,6 +175,5 @@ export class ProductsService {
     } catch (error) {
       throw new BadRequestException('Failed to delete product');
     }
-
   }
 }
