@@ -41,9 +41,10 @@ model RentalOption {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   productId String  @db.ObjectId
   product   Product @relation("productRentalOptions", fields: [productId], references: [id])
-  type      String  @unique
+  type      String
   priceRate Float
 
+  @@unique([productId, type], name: "UniqueRentalTypePerProduct")
   @@map("rental_options")
 }
 
