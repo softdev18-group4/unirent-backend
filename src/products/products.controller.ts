@@ -39,6 +39,13 @@ export class ProductsController {
     return this.productsService.findById(id);
   }
 
+
+  @UseGuards(JwtGuard)
+  @Get('yourProduct/byUser')
+  async getProductsByUserId(@GetUser() user) {
+    return await this.productsService.getProductsByUserId(user);
+  }
+
   @UseGuards(JwtGuard)
   @Put(':id')
   update(

@@ -6,9 +6,9 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
-import { Query as ExpressQuery } from 'express-serve-static-core';
-import { Prisma, Product } from '@prisma/client';
-import { type } from 'os';
+import { GetUser } from '@/common/decorators/get-users.decorator';
+
+
 
 @Injectable()
 export class ProductsService {
@@ -159,6 +159,23 @@ export class ProductsService {
       return updatedProduct;
     } catch (error) {
       throw new BadRequestException('Failed to update product');
+    }
+  }
+
+  async getProductsByUserId(user) {
+    try {
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const userProduct = await this.prisma.product.findMany({
+        where: { ownerId: user.id},
+      })
+
+      return userProduct; // Array of products associated with the user
+    } catch (error) {
+      console.error('Error fetching products by user ID:', error);
+      throw new Error('Internal server error');
     }
   }
 
