@@ -12,7 +12,7 @@ import { type } from 'os';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto, currentUser) {
     const { name, description, specifications, availableDays, rentalOptions } =
@@ -68,9 +68,9 @@ export class ProductsService {
             firstName: true,
             lastName: true,
             email: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
     return allproduct;
   }
