@@ -79,10 +79,7 @@ export class ProductsController {
     @Query('name') name: string,
     @Query('page') page: number = 1,
     @Query('perPage') perPage: number = 2,
-  ){
-
-    return this.productsService.searchProductNamePaginate(name, page, perPage)
+  ) {
+    return this.productsService.searchProductNamePaginate(name, page, perPage);
   }
-
-
 }
