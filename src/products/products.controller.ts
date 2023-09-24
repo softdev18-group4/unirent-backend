@@ -69,4 +69,16 @@ export class ProductsController {
   remove(@Param('id') id: string, @GetUser() currentUser) {
     return this.productsService.remove(id, currentUser);
   }
+
+  @Get('/search/name')
+  async searchProductNamePagination(
+    @Query('name') name: string,
+    @Query('page') page: number = 1,
+    @Query('perPage') perPage: number = 2,
+  ){
+
+    return this.productsService.searchProductNamePaginate(name, page, perPage)
+  }
+
+
 }
