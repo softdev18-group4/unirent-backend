@@ -11,13 +11,8 @@ import {
   Put,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { GetUser } from '@/common/decorators/get-users.decorator';
 import { JwtGuard } from '@/common/guards/jwt.guard';
-import { get } from 'http';
-import { Query as ExpressQuery } from 'express-serve-static-core';
-import { Product } from '@prisma/client';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('products')
@@ -74,12 +69,14 @@ export class ProductsController {
     return this.productsService.remove(id, currentUser);
   }
 
-  @Get('/search/name')
-  async searchProductNamePagination(
-    @Query('name') name: string,
+  @Get('/search/detail')
+  async searchProducts(
+    @Query('keyword') keyword: string,
     @Query('page') page: number = 1,
     @Query('perPage') perPage: number = 2,
   ) {
-    return this.productsService.searchProductNamePaginate(name, page, perPage);
+    const products = await this.productsService.searchProducts(keyword, page, perPage);
+    return products;
   }
 }
+

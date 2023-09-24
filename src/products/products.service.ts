@@ -6,11 +6,16 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
-import { GetUser } from '@/common/decorators/get-users.decorator';
+
+function deepPropertyGet(obj, property) {
+  return property.split('.').reduce((acc, current) => {
+    return acc ? acc[current] : undefined;
+  }, obj);
+}
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto, currentUser) {
     const { name, description, specifications, availableDays, rentalOptions } =
@@ -204,22 +209,41 @@ export class ProductsService {
     }
   }
 
-  async searchProductNamePaginate(
-    name: string,
-    page: number = 1,
-    perPage: number = 2,
-  ) {
-    const skip = (page - 1) * perPage;
-    const query = await this.prisma.product.findMany({
-      where: {
-        name: {
-          contains: name,
-          mode: 'insensitive',
-        },
-      },
-      skip: skip,
-      take: +perPage,
+  async searchProducts(keyword, page, perPage) {
+    const allProduct = this.findAll()
+    const filteredProducts = (await allProduct).filter(product => {
+      // Define the properties you want to search within
+      const propertiesToSearch = [
+        'name',
+        'description',
+        'specifications.brand',
+        'specifications.model',
+        'specifications.processor',
+        'specifications.graphicCard',
+        // Add more properties as needed
+      ];
+
+      // Loop through the properties and check if the keyword exists in them
+      for (const property of propertiesToSearch) {
+        const propertyValue = deepPropertyGet(product, property);
+        if (propertyValue && propertyValue.toString().toLowerCase().includes(keyword.toLowerCase())) {
+          return true; // Found a match, include this product
+        }
+      }
+
+      return false; // No match found for this product
     });
-    return query;
+
+    const startIndex = (page - 1) * perPage;
+    const endIndex = startIndex + perPage;
+
+    // Slice the filtered products to return only the items for the current page
+    const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+    return paginatedProducts;
   }
+
+
+
 }
+
