@@ -18,11 +18,13 @@ import { JwtGuard } from '@/common/guards/jwt.guard';
 import { get } from 'http';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 import { Product } from '@prisma/client';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Post()
   create(@Body() createProductDto, @GetUser() currentUser) {
@@ -39,13 +41,14 @@ export class ProductsController {
     return this.productsService.findById(id);
   }
 
-
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Get('yourProduct/byUser')
   async getProductsByUserId(@GetUser() user) {
     return await this.productsService.getProductsByUserId(user);
   }
 
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Put(':id')
   update(
@@ -64,6 +67,7 @@ export class ProductsController {
     return await this.productsService.findByPagination(page, perPage);
   }
 
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @GetUser() currentUser) {
