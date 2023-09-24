@@ -18,7 +18,7 @@ export class ProductsService {
 
     const newProduct = await this.prisma.product.create({
       data: {
-        name,
+        name: name,
         description,
         specifications,
         ownerId: currentUser.id as string,
@@ -202,5 +202,24 @@ export class ProductsService {
     } catch (error) {
       throw new BadRequestException('Failed to delete product');
     }
+  }
+
+  async searchProductNamePaginate(
+    name: string,
+    page: number = 1,
+    perPage: number = 2,
+  ) {
+    const skip = (page - 1) * perPage;
+    const query = await this.prisma.product.findMany({
+      where: {
+        name: {
+          contains: name,
+          mode: 'insensitive',
+        },
+      },
+      skip: skip,
+      take: +perPage,
+    });
+    return query;
   }
 }
