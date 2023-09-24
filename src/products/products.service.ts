@@ -15,7 +15,7 @@ function deepPropertyGet(obj, property) {
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto, currentUser) {
     const { name, description, specifications, availableDays, rentalOptions } =
@@ -210,8 +210,8 @@ export class ProductsService {
   }
 
   async searchProducts(keyword, page, perPage) {
-    const allProduct = this.findAll()
-    const filteredProducts = (await allProduct).filter(product => {
+    const allProduct = this.findAll();
+    const filteredProducts = (await allProduct).filter((product) => {
       // Define the properties you want to search within
       const propertiesToSearch = [
         'name',
@@ -226,7 +226,10 @@ export class ProductsService {
       // Loop through the properties and check if the keyword exists in them
       for (const property of propertiesToSearch) {
         const propertyValue = deepPropertyGet(product, property);
-        if (propertyValue && propertyValue.toString().toLowerCase().includes(keyword.toLowerCase())) {
+        if (
+          propertyValue &&
+          propertyValue.toString().toLowerCase().includes(keyword.toLowerCase())
+        ) {
           return true; // Found a match, include this product
         }
       }
@@ -242,8 +245,4 @@ export class ProductsService {
 
     return paginatedProducts;
   }
-
-
-
 }
-

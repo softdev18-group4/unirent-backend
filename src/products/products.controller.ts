@@ -75,8 +75,11 @@ export class ProductsController {
     @Query('page') page: number = 1,
     @Query('perPage') perPage: number = 2,
   ) {
-    const products = await this.productsService.searchProducts(keyword, page, perPage);
+    const products = await this.productsService.searchProducts(
+      keyword,
+      page,
+      perPage,
+    );
     return products;
   }
 }
-
