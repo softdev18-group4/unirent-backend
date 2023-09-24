@@ -8,8 +8,6 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { GetUser } from '@/common/decorators/get-users.decorator';
 
-
-
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
@@ -169,8 +167,8 @@ export class ProductsService {
       }
 
       const userProduct = await this.prisma.product.findMany({
-        where: { ownerId: user.id},
-      })
+        where: { ownerId: user.id },
+      });
 
       return userProduct; // Array of products associated with the user
     } catch (error) {

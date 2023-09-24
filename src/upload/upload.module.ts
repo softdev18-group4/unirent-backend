@@ -6,6 +6,6 @@ import { MinioClientModule } from '@/minio-client/minio-client.module';
 @Module({
   imports: [MinioClientModule],
   providers: [UploadService],
-  controllers: [UploadController]
+  controllers: [UploadController],
 })
 export class UploadModule {}

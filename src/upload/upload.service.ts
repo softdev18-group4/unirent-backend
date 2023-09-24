@@ -4,14 +4,14 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UploadService {
-    constructor(private minioClientService: MinioClientService) {}
+  constructor(private minioClientService: MinioClientService) {}
 
-    async uploadImage(image: BufferedFile) {
-        const uploadedImage = await this.minioClientService.upload(image);
-        
-        return {
-            imageUrl: uploadedImage.url,
-            message: 'Image upload successful', 
-        };
-    }
+  async uploadImage(image: BufferedFile) {
+    const uploadedImage = await this.minioClientService.upload(image);
+
+    return {
+      imageUrl: uploadedImage.url,
+      message: 'Image upload successful',
+    };
+  }
 }
