@@ -7,15 +7,21 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 
-function deepPropertyGet(obj, property) {
-  return property.split('.').reduce((acc, current) => {
-    return acc ? acc[current] : undefined;
-  }, obj);
+function getProperty(obj, path) {
+  const keys = path.split('.');
+  let current = obj;
+
+  for (const key of keys) {
+    if (current[key] === undefined) return undefined;
+    current = current[key];
+  }
+
+  return current;
 }
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto, currentUser) {
     const { name, description, specifications, availableDays, rentalOptions } =
@@ -209,11 +215,14 @@ export class ProductsService {
     }
   }
 
-  async searchProducts(keyword, page, perPage) {
-    const allProduct = this.findAll();
-    const filteredProducts = (await allProduct).filter((product) => {
-      // Define the properties you want to search within
-      const propertiesToSearch = [
+  async searchProducts(keyword="", searchBy="", page=1, perPage=2) {
+    const allProducts = this.findAll();
+
+    // Define the properties you want to search within
+    let propertiesToSearch = [];
+  
+    if (searchBy === 'all') {
+      propertiesToSearch = [
         'name',
         'description',
         'specifications.brand',
@@ -222,10 +231,26 @@ export class ProductsService {
         'specifications.graphicCard',
         // Add more properties as needed
       ];
-
-      // Loop through the properties and check if the keyword exists in them
+    } else if (searchBy === 'name') {
+      propertiesToSearch = ['name'];
+    }
+    else if (searchBy === 'brand') {
+      propertiesToSearch = ['specifications.brand'];
+    }
+    else if (searchBy === 'model') {
+      propertiesToSearch = ['specifications.model'];
+    }
+    else if (searchBy === 'processor') {
+      propertiesToSearch = ['specifications.processor'];
+    }
+    else if (searchBy === 'graphicCard') {
+      propertiesToSearch = ['specifications.graphicCard'];
+    }
+  
+    // Filter products based on the search criteria
+    const filteredProducts = (await allProducts).filter((product) => {
       for (const property of propertiesToSearch) {
-        const propertyValue = deepPropertyGet(product, property);
+        const propertyValue = getProperty(product, property);
         if (
           propertyValue &&
           propertyValue.toString().toLowerCase().includes(keyword.toLowerCase())
@@ -233,16 +258,18 @@ export class ProductsService {
           return true; // Found a match, include this product
         }
       }
-
       return false; // No match found for this product
     });
-
+  
     const startIndex = (page - 1) * perPage;
     const endIndex = startIndex + perPage;
-
+  
     // Slice the filtered products to return only the items for the current page
     const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
+  
     return paginatedProducts;
   }
+
+
+
 }
