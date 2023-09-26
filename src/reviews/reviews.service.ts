@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -7,8 +11,8 @@ import { PrismaService } from '@/prisma/prisma.service';
 export class ReviewsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(id:string , createReviewDto: CreateReviewDto,currentUser) {
-    const {text,rating} = createReviewDto
+  async create(id: string, createReviewDto: CreateReviewDto, currentUser) {
+    const { text, rating } = createReviewDto;
     try {
       const existingProduct = await this.prisma.product.findUnique({
         where: { id },
@@ -19,15 +23,15 @@ export class ReviewsService {
       }
 
       return await this.prisma.review.create({
-        data:{
+        data: {
           text: text,
           rating: rating,
           reviewerId: currentUser as string,
           productId: id,
-        }
-      })
+        },
+      });
     } catch (error) {
-    throw new BadRequestException('Failed to create review');
+      throw new BadRequestException('Failed to create review');
     }
   }
 

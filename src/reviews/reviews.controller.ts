@@ -17,8 +17,12 @@ export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post(':productId')
-  create(@Param('productId') id: string , @Body() createReviewDto ,@GetUser() currentUser) {
-    return this.reviewsService.create(id,createReviewDto,currentUser);
+  create(
+    @Param('productId') id: string,
+    @Body() createReviewDto,
+    @GetUser() currentUser,
+  ) {
+    return this.reviewsService.create(id, createReviewDto, currentUser);
   }
 
   @Get()

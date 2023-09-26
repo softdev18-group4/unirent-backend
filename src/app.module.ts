@@ -22,8 +22,9 @@ import { UploadModule } from './upload/upload.module';
     AuthModule,
     ProductsModule,
     PrismaModule,
+    ReviewsModule,
   ],
-  controllers: [AppController, ReviewsController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
