@@ -7,6 +7,18 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 
+function getProperty(obj, path) {
+  const keys = path.split('.');
+  let current = obj;
+
+  for (const key of keys) {
+    if (current[key] === undefined) return undefined;
+    current = current[key];
+  }
+
+  return current;
+}
+
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
@@ -17,7 +29,7 @@ export class ProductsService {
 
     const newProduct = await this.prisma.product.create({
       data: {
-        name,
+        name: name,
         description,
         specifications,
         ownerId: currentUser.id as string,
@@ -201,5 +213,56 @@ export class ProductsService {
     } catch (error) {
       throw new BadRequestException('Failed to delete product');
     }
+  }
+
+  async searchProducts(keyword = '', searchBy = '', page = 1, perPage = 2) {
+    const allProducts = this.findAll();
+
+    // Define the properties you want to search within
+    let propertiesToSearch = [];
+
+    if (searchBy === 'all') {
+      propertiesToSearch = [
+        'name',
+        'description',
+        'specifications.brand',
+        'specifications.model',
+        'specifications.processor',
+        'specifications.graphicCard',
+        // Add more properties as needed
+      ];
+    } else if (searchBy === 'name') {
+      propertiesToSearch = ['name'];
+    } else if (searchBy === 'brand') {
+      propertiesToSearch = ['specifications.brand'];
+    } else if (searchBy === 'model') {
+      propertiesToSearch = ['specifications.model'];
+    } else if (searchBy === 'processor') {
+      propertiesToSearch = ['specifications.processor'];
+    } else if (searchBy === 'graphicCard') {
+      propertiesToSearch = ['specifications.graphicCard'];
+    }
+
+    // Filter products based on the search criteria
+    const filteredProducts = (await allProducts).filter((product) => {
+      for (const property of propertiesToSearch) {
+        const propertyValue = getProperty(product, property);
+        if (
+          propertyValue &&
+          propertyValue.toString().toLowerCase().includes(keyword.toLowerCase())
+        ) {
+          return true; // Found a match, include this product
+        }
+      }
+      return false; // No match found for this product
+    });
+
+    const startIndex = (page - 1) * perPage;
+    const endIndex = startIndex + perPage;
+
+    // Slice the filtered products to return only the items for the current page
+    const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+    return paginatedProducts;
   }
 }
