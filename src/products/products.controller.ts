@@ -36,16 +36,16 @@ export class ProductsController {
     return this.productsService.findById(id);
   }
 
-  @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtGuard)
   @Get('yourProduct/byUser')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth('JWT-auth')
   async getProductsByUserId(@GetUser() user) {
     return await this.productsService.getProductsByUserId(user);
   }
 
-  @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtGuard)
   @Put(':id')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth('JWT-auth')
   update(
     @Param('id') id: string,
     @Body() UpdateProductDto,
@@ -62,9 +62,9 @@ export class ProductsController {
     return await this.productsService.findByPagination(page, perPage);
   }
 
-  @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtGuard)
   @Delete(':id')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth('JWT-auth')
   remove(@Param('id') id: string, @GetUser() currentUser) {
     return this.productsService.remove(id, currentUser);
   }
