@@ -23,6 +23,7 @@ import { UploadModule } from './upload/upload.module';
     ProductsModule,
     PrismaModule,
     ReviewsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

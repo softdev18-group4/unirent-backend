@@ -13,7 +13,7 @@ Install Dependencies
 npm i
 ```
 
-Serve Developement Server
+Serve Development Server
 
 ```
 npm run start:dev
@@ -33,4 +33,10 @@ npx prisma db pull
 ```
 npx prisma generate
 npx prisma db push
+```
+
+# Development
+สำหรับคนที่ยังไม่มีได้ setup husky
+```
+ืnpm run setup
 ```
