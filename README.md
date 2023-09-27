@@ -38,5 +38,5 @@ npx prisma db push
 # Development
 สำหรับคนที่ยังไม่มีได้ setup husky
 ```
-ืnpm run setup
+npm run setup
 ```
