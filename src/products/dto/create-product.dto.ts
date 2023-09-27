@@ -1,22 +1,53 @@
+import { IsString, IsNotEmpty, IsOptional, IsInt } from 'class-validator';
+
 export class CreateProductDto {
+  @IsString()
+  @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsOptional()
   description: string;
-  specifications: {
-    brand: string;
-    model: string;
-    processor: string;
-    graphicCard: string;
-    ramSize: number;
-    storageSize: number;
-  };
-  rentalOptions: RentalOption[];
+
+  @IsNotEmpty()
+  specifications: Specification;
+
+  @IsNotEmpty()
+  rentalOptions: RentalOptions[];
+
+  @IsNotEmpty()
   availableDays: {
     startDate: Date;
     endDate: Date;
   };
 }
 
-export class RentalOption {
+export class Specification {
+  @IsString()
+  brand: string;
+
+  @IsString()
+  model: string;
+
+  @IsString()
+  processor: string;
+
+  @IsString()
+  graphicCard: string;
+
+  @IsInt()
+  ramSize: number;
+
+  @IsInt()
+  storageSize: number;
+}
+
+export class RentalOptions {
+  @IsString()
   type: string;
+
+  @IsInt()
   priceRate: number;
+
+  isSelected: true;
 }
