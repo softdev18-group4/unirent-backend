@@ -3,13 +3,12 @@ import { CreateOrderDto } from './create-order.dto';
 import { IsOptional, IsUUID } from 'class-validator';
 
 export class UpdateOrderDto {
+  @IsOptional()
+  productId?: string;
 
-    @IsOptional()
-    productId?: string;
+  @IsOptional()
+  userId?: string;
 
-    @IsOptional()
-    userId?: string;
-
-    @IsOptional()
-    rentalId?: string;
+  @IsOptional()
+  rentalId?: string;
 }

@@ -89,16 +89,15 @@ export class ProductsService {
   }
 
   async findByPagination(page: number = 1, perPage: number = 2) {
-    try{
-
+    try {
       const skip = (page - 1) * perPage;
       const query = await this.prisma.product.findMany({
         skip: skip,
         take: +perPage,
       });
       return query;
-    }catch(error){
-      throw new AllExceptionsFilter(error)
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -225,7 +224,6 @@ export class ProductsService {
 
   async searchProducts(keyword = '', searchBy = '', page = 1, perPage = 2) {
     try {
-
       const allProducts = this.findAll();
       // Define the properties you want to search within
       let propertiesToSearch = [];
@@ -258,7 +256,10 @@ export class ProductsService {
           const propertyValue = getProperty(product, property);
           if (
             propertyValue &&
-            propertyValue.toString().toLowerCase().includes(keyword.toLowerCase())
+            propertyValue
+              .toString()
+              .toLowerCase()
+              .includes(keyword.toLowerCase())
           ) {
             return true; // Found a match, include this product
           }
@@ -273,9 +274,8 @@ export class ProductsService {
       const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
 
       return paginatedProducts;
-    }
-    catch (error) {
-      throw new AllExceptionsFilter(error)
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
     }
   }
 }

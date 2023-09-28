@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -8,7 +18,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
@@ -39,10 +49,7 @@ export class OrdersController {
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Delete(':id')
-  remove(
-    @Param('id') id: string,
-    @GetUser() currentUser
-    ) {
-    return this.ordersService.remove(id,currentUser);
+  remove(@Param('id') id: string, @GetUser() currentUser) {
+    return this.ordersService.remove(id, currentUser);
   }
 }
