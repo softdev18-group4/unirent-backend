@@ -28,33 +28,44 @@ export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto, currentUser) {
-    const { name, description, specifications, availableDays, rentalOptions } =
-      createProductDto;
+    try {
+      const { name, description, specifications, availableDays, rentalOptions } = createProductDto;
 
-    const newProduct = await this.prisma.product.create({
-      data: {
-        name: name,
-        description,
-        specifications,
-        ownerId: currentUser.id as string,
-        availableDays: {
-          startDate: new Date(availableDays.startDate),
-          endDate: new Date(availableDays.endDate),
-        },
-        availability: true,
-        rentalOptions: {
-          create: rentalOptions.map((option) => ({
-            type: option.type,
-            priceRate: option.priceRate,
-          })),
-        },
-      },
-      include: {
-        rentalOptions: true,
-      },
-    });
+      // Validate availableDays dates
+      const startDate = new Date(availableDays.startDate);
+      const endDate = new Date(availableDays.endDate);
 
-    return newProduct;
+      if (startDate > endDate) {
+        throw new BadRequestException('Start date must be before end date');
+      }
+
+      const newProduct = await this.prisma.product.create({
+        data: {
+          name,
+          description,
+          specifications,
+          ownerId: currentUser.id as string,
+          availableDays: {
+            startDate,
+            endDate,
+          },
+          availability: true,
+          rentalOptions: {
+            create: rentalOptions.map((option) => ({
+              type: option.type,
+              priceRate: option.priceRate,
+            })),
+          },
+        },
+        include: {
+          rentalOptions: true,
+        },
+      });
+
+      return newProduct;
+    } catch (error) {
+      throw new BadRequestException('Invalid input data', error.message);
+    }
   }
 
   async findById(productId: string) {

@@ -14,15 +14,19 @@ import { ProductsService } from './products.service';
 import { GetUser } from '@/common/decorators/get-users.decorator';
 import { JwtGuard } from '@/common/guards/jwt.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { CreateProductDto } from './dto/create-product.dto';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Post()
-  create(@Body() createProductDto, @GetUser() currentUser) {
+  create(
+    @Body() createProductDto: CreateProductDto,
+    @GetUser() currentUser
+  ) {
     return this.productsService.create(createProductDto, currentUser);
   }
 

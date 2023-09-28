@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -12,12 +13,15 @@ import { PrismaService } from '@/prisma/prisma.service';
 @Injectable()
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
-  async create(createOrderDto: CreateOrderDto) {
+  async create(createOrderDto: CreateOrderDto, currentUser) {
     try {
+      if(!currentUser){
+        throw new UnauthorizedException('Unauthorized')
+      }
       const newOrder = await this.prisma.order.create({
         data: {
           productId: createOrderDto.productId,
-          userId: createOrderDto.userId,
+          userId: currentUser.id,
           rentalId: createOrderDto.rentalId,
         },
       });
