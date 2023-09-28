@@ -9,6 +9,7 @@ import { ProductsModule } from './products/products.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { MinioClientModule } from './minio-client/minio-client.module';
 import { UploadModule } from './upload/upload.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UploadModule } from './upload/upload.module';
     PrismaModule,
     MinioClientModule,
     UploadModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

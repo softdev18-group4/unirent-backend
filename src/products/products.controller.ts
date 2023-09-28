@@ -17,7 +17,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
@@ -71,8 +71,8 @@ export class ProductsController {
 
   @Get('/search/detail')
   async searchProducts(
-    @Query('keyword') keyword: string = "",
-    @Query('searchBy') searchBy: string = "",
+    @Query('keyword') keyword: string = '',
+    @Query('searchBy') searchBy: string = '',
     @Query('page') page: number = 1,
     @Query('perPage') perPage: number = 2,
   ) {
@@ -84,5 +84,4 @@ export class ProductsController {
     );
     return query;
   }
-
 }

@@ -1,11 +1,15 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
+import { error } from 'console';
+import { AllExceptionsFilter } from '@/http-exception.filter';
 
 function getProperty(obj, path) {
   const keys = path.split('.');
@@ -85,12 +89,17 @@ export class ProductsService {
   }
 
   async findByPagination(page: number = 1, perPage: number = 2) {
-    const skip = (page - 1) * perPage;
-    const query = await this.prisma.product.findMany({
-      skip: skip,
-      take: +perPage,
-    });
-    return query;
+    try{
+
+      const skip = (page - 1) * perPage;
+      const query = await this.prisma.product.findMany({
+        skip: skip,
+        take: +perPage,
+      });
+      return query;
+    }catch(error){
+      throw new AllExceptionsFilter(error)
+    }
   }
 
   findOne(id: string) {
@@ -173,9 +182,9 @@ export class ProductsService {
 
   async getProductsByUserId(user) {
     try {
-      if (!user) {
-        throw new Error('User not found');
-      }
+      // if (!user) {
+      //   throw new Error('User not found');
+      // }
 
       const userProduct = await this.prisma.product.findMany({
         where: { ownerId: user.id },
@@ -183,8 +192,7 @@ export class ProductsService {
 
       return userProduct; // Array of products associated with the user
     } catch (error) {
-      console.error('Error fetching products by user ID:', error);
-      throw new Error('Internal server error');
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -215,61 +223,59 @@ export class ProductsService {
     }
   }
 
-  async searchProducts(keyword="", searchBy="", page=1, perPage=2) {
-    const allProducts = this.findAll();
+  async searchProducts(keyword = '', searchBy = '', page = 1, perPage = 2) {
+    try {
 
-    // Define the properties you want to search within
-    let propertiesToSearch = [];
-  
-    if (searchBy === 'all') {
-      propertiesToSearch = [
-        'name',
-        'description',
-        'specifications.brand',
-        'specifications.model',
-        'specifications.processor',
-        'specifications.graphicCard',
-        // Add more properties as needed
-      ];
-    } else if (searchBy === 'name') {
-      propertiesToSearch = ['name'];
-    }
-    else if (searchBy === 'brand') {
-      propertiesToSearch = ['specifications.brand'];
-    }
-    else if (searchBy === 'model') {
-      propertiesToSearch = ['specifications.model'];
-    }
-    else if (searchBy === 'processor') {
-      propertiesToSearch = ['specifications.processor'];
-    }
-    else if (searchBy === 'graphicCard') {
-      propertiesToSearch = ['specifications.graphicCard'];
-    }
-  
-    // Filter products based on the search criteria
-    const filteredProducts = (await allProducts).filter((product) => {
-      for (const property of propertiesToSearch) {
-        const propertyValue = getProperty(product, property);
-        if (
-          propertyValue &&
-          propertyValue.toString().toLowerCase().includes(keyword.toLowerCase())
-        ) {
-          return true; // Found a match, include this product
-        }
+      const allProducts = this.findAll();
+      // Define the properties you want to search within
+      let propertiesToSearch = [];
+
+      if (searchBy === '') {
+        propertiesToSearch = [
+          'name',
+          'description',
+          'specifications.brand',
+          'specifications.model',
+          'specifications.processor',
+          'specifications.graphicCard',
+          // Add more properties as needed
+        ];
+      } else if (searchBy === 'name') {
+        propertiesToSearch = ['name'];
+      } else if (searchBy === 'brand') {
+        propertiesToSearch = ['specifications.brand'];
+      } else if (searchBy === 'model') {
+        propertiesToSearch = ['specifications.model'];
+      } else if (searchBy === 'processor') {
+        propertiesToSearch = ['specifications.processor'];
+      } else if (searchBy === 'graphicCard') {
+        propertiesToSearch = ['specifications.graphicCard'];
       }
-      return false; // No match found for this product
-    });
-  
-    const startIndex = (page - 1) * perPage;
-    const endIndex = startIndex + perPage;
-  
-    // Slice the filtered products to return only the items for the current page
-    const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-  
-    return paginatedProducts;
+
+      // Filter products based on the search criteria
+      const filteredProducts = (await allProducts).filter((product) => {
+        for (const property of propertiesToSearch) {
+          const propertyValue = getProperty(product, property);
+          if (
+            propertyValue &&
+            propertyValue.toString().toLowerCase().includes(keyword.toLowerCase())
+          ) {
+            return true; // Found a match, include this product
+          }
+        }
+        return false; // No match found for this product
+      });
+
+      const startIndex = (page - 1) * perPage;
+      const endIndex = startIndex + perPage;
+
+      // Slice the filtered products to return only the items for the current page
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+      return paginatedProducts;
+    }
+    catch (error) {
+      throw new AllExceptionsFilter(error)
+    }
   }
-
-
-
 }
