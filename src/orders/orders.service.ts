@@ -12,11 +12,11 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(createOrderDto: CreateOrderDto, currentUser) {
     try {
-      if(!currentUser){
-        throw new UnauthorizedException('Unauthorized')
+      if (!currentUser) {
+        throw new UnauthorizedException('Unauthorized');
       }
       const newOrder = await this.prisma.order.create({
         data: {
@@ -98,5 +98,21 @@ export class OrdersService {
     } catch (error) {
       throw new BadRequestException('Failed to delete');
     }
+  }
+
+  async findYourOrder(currentUser, page = 1, perPage = 2) {
+    try {
+      const skip = (page - 1) * perPage
+      const yourOrder = await this.prisma.order.findMany({
+        where: { userId: currentUser.id },
+        skip: skip,
+        take: +perPage,
+      })
+      return yourOrder
+    }
+    catch (error) {
+      throw new AllExceptionsFilter(error)
+    }
+
   }
 }

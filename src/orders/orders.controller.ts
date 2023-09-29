@@ -8,6 +8,7 @@ import {
   Delete,
   Put,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -18,15 +19,12 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Post()
-  create(
-    @Body() createOrderDto: CreateOrderDto,
-    @GetUser() currentUser
-  ) {
+  create(@Body() createOrderDto: CreateOrderDto, @GetUser() currentUser) {
     // deepcode ignore WrongNumberOfArgs: <please specify a reason of ignoring this>
     return this.ordersService.create(createOrderDto, currentUser);
   }
@@ -39,6 +37,17 @@ export class OrdersController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ordersService.findOne(id);
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtGuard)
+  @Get('yourOrder/byUser')
+  async findYourOrder(
+    @GetUser() currenUser,
+    @Query('page') page: number = 1,
+    @Query('perPage') perPage: number = 2,
+  ){
+    return await this.ordersService.findYourOrder(currenUser, page, perPage)
   }
 
   @ApiBearerAuth('JWT-auth')

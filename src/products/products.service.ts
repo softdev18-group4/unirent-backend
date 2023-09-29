@@ -29,7 +29,13 @@ export class ProductsService {
 
   async create(createProductDto: CreateProductDto, currentUser) {
     try {
-      const { name, description, specifications, availableDays, rentalOptions } = createProductDto;
+      const {
+        name,
+        description,
+        specifications,
+        availableDays,
+        rentalOptions,
+      } = createProductDto;
 
       // Validate availableDays dates
       const startDate = new Date(availableDays.startDate);
@@ -64,7 +70,7 @@ export class ProductsService {
 
       return newProduct;
     } catch (error) {
-      throw new BadRequestException('Invalid input data', error.message);
+      throw new AllExceptionsFilter(error)
     }
   }
 
@@ -190,14 +196,16 @@ export class ProductsService {
     }
   }
 
-  async getProductsByUserId(user) {
+  async getProductsByUserId(user, page, perPage) {
     try {
       // if (!user) {
       //   throw new Error('User not found');
       // }
-
+      const skip = (page - 1) * perPage;
       const userProduct = await this.prisma.product.findMany({
         where: { ownerId: user.id },
+        skip: skip,
+        take: +perPage,
       });
 
       return userProduct; // Array of products associated with the user
