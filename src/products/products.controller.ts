@@ -14,6 +14,7 @@ import { ProductsService } from './products.service';
 import { GetUser } from '@/common/decorators/get-users.decorator';
 import { JwtGuard } from '@/common/guards/jwt.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { CreateProductDto } from './dto/create-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -22,7 +23,7 @@ export class ProductsController {
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Post()
-  create(@Body() createProductDto, @GetUser() currentUser) {
+  create(@Body() createProductDto: CreateProductDto, @GetUser() currentUser) {
     return this.productsService.create(createProductDto, currentUser);
   }
 
@@ -39,8 +40,11 @@ export class ProductsController {
   @Get('yourProduct/byUser')
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
-  async getProductsByUserId(@GetUser() user) {
-    return await this.productsService.getProductsByUserId(user);
+  async getProductsByUserId(
+    @GetUser() user,
+    @Query('page') page: number = 1,
+    @Query('perPage') perPage: number = 2,) {
+    return await this.productsService.getProductsByUserId(user, page, perPage);
   }
 
   @Put(':id')

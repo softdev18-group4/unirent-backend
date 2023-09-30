@@ -12,7 +12,7 @@ export class UploadController {
   @Post()
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiImage()
+  @ApiImage('image')
   async uploadImage(@UploadedFile() image: BufferedFile) {
     return await this.uploadService.uploadImage(image);
   }
