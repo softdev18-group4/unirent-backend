@@ -12,7 +12,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(createOrderDto: CreateOrderDto, currentUser) {
     try {
       if (!currentUser) {
@@ -23,6 +23,7 @@ export class OrdersService {
           productId: createOrderDto.productId,
           userId: currentUser.id,
           rentalId: createOrderDto.rentalId,
+          status: createOrderDto.status,
         },
       });
 
@@ -69,6 +70,7 @@ export class OrdersService {
           productId: updateOrderDto.productId,
           userId: updateOrderDto.userId,
           rentalId: updateOrderDto.rentalId,
+          status:updateOrderDto.status
         },
       });
 
@@ -102,17 +104,15 @@ export class OrdersService {
 
   async findYourOrder(currentUser, page = 1, perPage = 2) {
     try {
-      const skip = (page - 1) * perPage
+      const skip = (page - 1) * perPage;
       const yourOrder = await this.prisma.order.findMany({
         where: { userId: currentUser.id },
         skip: skip,
         take: +perPage,
-      })
-      return yourOrder
+      });
+      return yourOrder;
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
     }
-    catch (error) {
-      throw new AllExceptionsFilter(error)
-    }
-
   }
 }

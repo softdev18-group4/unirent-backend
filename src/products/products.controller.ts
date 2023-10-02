@@ -43,7 +43,8 @@ export class ProductsController {
   async getProductsByUserId(
     @GetUser() user,
     @Query('page') page: number = 1,
-    @Query('perPage') perPage: number = 2,) {
+    @Query('perPage') perPage: number = 2,
+  ) {
     return await this.productsService.getProductsByUserId(user, page, perPage);
   }
 

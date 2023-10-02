@@ -11,4 +11,7 @@ export class UpdateOrderDto {
 
   @IsOptional()
   rentalId?: string;
+
+  @IsOptional()
+  status?: string;
 }

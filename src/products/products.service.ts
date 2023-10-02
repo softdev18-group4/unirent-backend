@@ -70,7 +70,7 @@ export class ProductsService {
 
       return newProduct;
     } catch (error) {
-      throw new AllExceptionsFilter(error)
+      throw new AllExceptionsFilter(error);
     }
   }
 

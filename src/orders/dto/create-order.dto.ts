@@ -15,4 +15,6 @@ export class CreateOrderDto {
   userId: string;
 
   rentalId: string;
+
+  status: string;
 }

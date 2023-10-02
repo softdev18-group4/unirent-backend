@@ -46,8 +46,8 @@ export class OrdersController {
     @GetUser() currenUser,
     @Query('page') page: number = 1,
     @Query('perPage') perPage: number = 2,
-  ){
-    return await this.ordersService.findYourOrder(currenUser, page, perPage)
+  ) {
+    return await this.ordersService.findYourOrder(currenUser, page, perPage);
   }
 
   @ApiBearerAuth('JWT-auth')
