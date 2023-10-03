@@ -94,6 +94,7 @@ model Order {
   user        User          @relation("userOrders", fields: [userId], references: [id])
   rentalId    String        @db.ObjectId
   status      String
+  rentTime    Int
 
   @@map("orders")
 }

@@ -23,10 +23,14 @@ export class OrdersController {
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
-  @Post()
-  create(@Body() createOrderDto: CreateOrderDto, @GetUser() currentUser) {
+  @Post(':productId')
+  create(
+    @Body() createOrderDto: CreateOrderDto, 
+    @GetUser() currentUser,
+    @Param('productId') productId: string
+    ) {
     // deepcode ignore WrongNumberOfArgs: <please specify a reason of ignoring this>
-    return this.ordersService.create(createOrderDto, currentUser);
+    return this.ordersService.create(createOrderDto, currentUser, productId);
   }
 
   @Get()
@@ -66,5 +70,25 @@ export class OrdersController {
   @Delete(':id')
   remove(@Param('id') id: string, @GetUser() currentUser) {
     return this.ordersService.remove(id, currentUser);
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtGuard)
+  @Get('yourOrder/byUser/search')
+  async searchYourOrder(
+    @GetUser() user,
+    @Query('keyword') keyword: string ,
+    @Query('searchBy') searchBy: string,
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+  ){
+    const query = await this.ordersService.searchYourOrder(
+      user,
+      keyword,
+      searchBy,
+      page,
+      perPage,
+    );
+    return query;
   }
 }
