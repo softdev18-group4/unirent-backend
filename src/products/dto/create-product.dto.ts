@@ -1,3 +1,4 @@
+import { Specifications } from '@prisma/client';
 import { IsString, IsNotEmpty, IsOptional, IsInt } from 'class-validator';
 
 export class CreateProductDto {
@@ -10,7 +11,7 @@ export class CreateProductDto {
   description: string;
 
   @IsNotEmpty()
-  specifications: Specification;
+  specifications: Specifications;
 
   @IsNotEmpty()
   rentalOptions: RentalOptions[];

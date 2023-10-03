@@ -1,19 +1,18 @@
-import {
-  Controller,
-  Post,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Post, UploadedFile, UseGuards } from '@nestjs/common';
 import { UploadService } from './upload.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { BufferedFile } from '@/minio-client/file.model';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { JwtGuard } from '@/common/guards/jwt.guard';
+import { ApiImage } from '@/decorators/api-image.decorator';
 
 @Controller('upload')
 export class UploadController {
   constructor(private uploadService: UploadService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiImage('image')
   async uploadImage(@UploadedFile() image: BufferedFile) {
     return await this.uploadService.uploadImage(image);
   }

@@ -18,6 +18,7 @@ model User {
   products   Product[]    @relation("userProducts")
   reviews    Review[]     @relation("userReviews")
   ResetToken ResetToken[] @relation("userResetToken")
+  orders     Order[]      @relation("userOrders")
 
   @@map("users")
 }
@@ -33,6 +34,7 @@ model Product {
   specifications Specifications
   availability   Boolean
   availableDays  AvailableDays
+  orders         Order[]        @relation("orderProduct")
 
   @@map("products")
 }
@@ -44,7 +46,7 @@ model RentalOption {
   type      String
   priceRate Float
 
-  @@unique([productId, type], name: "UniqueRentalTypePerProduct")
+  // @@unique([productId, type], name: "UniqueRentalTypePerProduct")
   @@map("rental_options")
 }
 
@@ -82,4 +84,16 @@ type Specifications {
 type AvailableDays {
   startDate DateTime
   endDate   DateTime
+}
+
+model Order {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String        @db.ObjectId
+  product     Product       @relation("orderProduct", fields: [productId], references: [id])
+  userId      String        @db.ObjectId
+  user        User          @relation("userOrders", fields: [userId], references: [id])
+  rentalId    String        @db.ObjectId
+  status      String
+
+  @@map("orders")
 }

@@ -14,6 +14,7 @@ import { ProductsService } from './products.service';
 import { GetUser } from '@/common/decorators/get-users.decorator';
 import { JwtGuard } from '@/common/guards/jwt.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { CreateProductDto } from './dto/create-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -22,7 +23,7 @@ export class ProductsController {
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Post()
-  create(@Body() createProductDto, @GetUser() currentUser) {
+  create(@Body() createProductDto: CreateProductDto, @GetUser() currentUser) {
     return this.productsService.create(createProductDto, currentUser);
   }
 
@@ -36,16 +37,20 @@ export class ProductsController {
     return this.productsService.findById(id);
   }
 
-  @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtGuard)
   @Get('yourProduct/byUser')
-  async getProductsByUserId(@GetUser() user) {
-    return await this.productsService.getProductsByUserId(user);
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth('JWT-auth')
+  async getProductsByUserId(
+    @GetUser() user,
+    @Query('page') page: number = 1,
+    @Query('perPage') perPage: number = 2,
+  ) {
+    return await this.productsService.getProductsByUserId(user, page, perPage);
   }
 
-  @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtGuard)
   @Put(':id')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth('JWT-auth')
   update(
     @Param('id') id: string,
     @Body() UpdateProductDto,
@@ -62,9 +67,9 @@ export class ProductsController {
     return await this.productsService.findByPagination(page, perPage);
   }
 
-  @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtGuard)
   @Delete(':id')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth('JWT-auth')
   remove(@Param('id') id: string, @GetUser() currentUser) {
     return this.productsService.remove(id, currentUser);
   }

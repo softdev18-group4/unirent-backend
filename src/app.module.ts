@@ -11,6 +11,7 @@ import { ReviewsController } from './reviews/reviews.controller';
 import { ReviewsModule } from './reviews/reviews.module';
 import { MinioClientModule } from './minio-client/minio-client.module';
 import { UploadModule } from './upload/upload.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -23,6 +24,8 @@ import { UploadModule } from './upload/upload.module';
     ProductsModule,
     PrismaModule,
     ReviewsModule,
+    UploadModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
