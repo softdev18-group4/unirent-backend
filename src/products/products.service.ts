@@ -58,6 +58,20 @@ export class ProductsService {
       where: { id: productId },
       include: {
         rentalOptions: true,
+        owner: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        reviews: {
+          select: {
+            text: true,
+            rating: true,
+            reviewerId: true,
+          },
+        },
       },
     });
 
@@ -77,6 +91,13 @@ export class ProductsService {
             firstName: true,
             lastName: true,
             email: true,
+          },
+        },
+        reviews: {
+          select: {
+            text: true,
+            rating: true,
+            reviewerId: true,
           },
         },
       },
@@ -194,6 +215,7 @@ export class ProductsService {
         where: { id },
         include: {
           rentalOptions: true,
+          reviews: true,
         },
       });
 
@@ -207,6 +229,7 @@ export class ProductsService {
         );
       }
       await this.prisma.rentalOption.deleteMany({ where: { productId: id } });
+      await this.prisma.review.deleteMany({ where: { productId: id } });
       await this.prisma.product.delete({ where: { id } });
 
       return { message: 'Product deleted successfully' };
