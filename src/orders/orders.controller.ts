@@ -15,27 +15,28 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { GetUser } from '@/common/decorators/get-users.decorator';
 import { JwtGuard } from '@/common/guards/jwt.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Post(':productId')
   create(
-    @Body() createOrderDto: CreateOrderDto, 
+    @Body() createOrderDto: CreateOrderDto,
     @GetUser() currentUser,
     @Param('productId') productId: string
-    ) {
+  ) {
     // deepcode ignore WrongNumberOfArgs: <please specify a reason of ignoring this>
     return this.ordersService.create(createOrderDto, currentUser, productId);
   }
 
   @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  findAll(@Query('page') page: number, @Query('perPage') perPage: number) {
+    return this.ordersService.findAll(page, perPage);
   }
 
   @Get(':id')
@@ -77,11 +78,11 @@ export class OrdersController {
   @Get('yourOrder/byUser/search')
   async searchYourOrder(
     @GetUser() user,
-    @Query('keyword') keyword: string ,
+    @Query('keyword') keyword: string,
     @Query('searchBy') searchBy: string,
     @Query('page') page: number,
     @Query('perPage') perPage: number,
-  ){
+  ) {
     const query = await this.ordersService.searchYourOrder(
       user,
       keyword,

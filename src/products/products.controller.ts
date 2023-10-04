@@ -13,9 +13,10 @@ import {
 import { ProductsService } from './products.service';
 import { GetUser } from '@/common/decorators/get-users.decorator';
 import { JwtGuard } from '@/common/guards/jwt.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product.dto';
 
+@ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -31,13 +32,13 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
-  @Get()
-  async getProductsPagination(
-    @Query('page') page: number,
-    @Query('perPage') perPage: number,
-  ) {
-    return await this.productsService.findByPagination(page, perPage);
-  }
+  // @Get()
+  // async getProductsPagination(
+  //   @Query('page') page: number,
+  //   @Query('perPage') perPage: number,
+  // ) {
+  //   return await this.productsService.findByPagination(page, perPage);
+  // }
   
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -74,7 +75,7 @@ export class ProductsController {
     return this.productsService.remove(id, currentUser);
   }
 
-  @Get('/allProduct/search')
+  @Get()
   async searchProducts(
     @Query('keyword') keyword: string,
     @Query('searchBy') searchBy: string,

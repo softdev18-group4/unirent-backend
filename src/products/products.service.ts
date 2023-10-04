@@ -219,12 +219,20 @@ export class ProductsService {
 
   async getProductsByUserId(user, page, perPage) {
     try {
-      // if (!user) {
-      //   throw new Error('User not found');
-      // }
+     
       const skip = (page - 1) * perPage;
       const userProduct = await this.prisma.product.findMany({
         where: { ownerId: user.id },
+        include:{
+          rentalOptions:true,
+          reviews: true,
+          owner:{
+            select:{
+              firstName:true,
+              lastName:true
+            }
+          }
+        },
         skip: skip,
         take: +perPage,
       });
