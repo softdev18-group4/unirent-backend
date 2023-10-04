@@ -12,6 +12,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { MinioClientModule } from './minio-client/minio-client.module';
 import { UploadModule } from './upload/upload.module';
 import { OrdersModule } from './orders/orders.module';
+import { CouponsModule } from './coupons/coupons.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { OrdersModule } from './orders/orders.module';
     ReviewsModule,
     UploadModule,
     OrdersModule,
+    CouponsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

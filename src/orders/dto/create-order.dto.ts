@@ -7,12 +7,23 @@ import {
   IsArray,
   isJSON,
   isString,
+  isNumber,
 } from 'class-validator';
 
 export class CreateOrderDto {
-  productId: string;
+  // productId: string;
 
-  userId: string;
-
+  // userId: string;
+  @IsString()
+  @IsNotEmpty()
   rentalId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  status: string;
+
+  @IsInt()
+  @IsNotEmpty()
+  rentTime: number;
+
 }

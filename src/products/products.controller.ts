@@ -13,9 +13,10 @@ import {
 import { ProductsService } from './products.service';
 import { GetUser } from '@/common/decorators/get-users.decorator';
 import { JwtGuard } from '@/common/guards/jwt.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product.dto';
 
+@ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -27,23 +28,31 @@ export class ProductsController {
     return this.productsService.create(createProductDto, currentUser);
   }
 
-  @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
+  // @Get()
+  // async getProductsPagination(
+  //   @Query('page') page: number,
+  //   @Query('perPage') perPage: number,
+  // ) {
+  //   return await this.productsService.findByPagination(page, perPage);
+  // }
+  
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findById(id);
   }
 
-  @Get('yourProduct/byUser')
+  @Get('/yourProduct/byUser')
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
   async getProductsByUserId(
     @GetUser() user,
-    @Query('page') page: number = 1,
-    @Query('perPage') perPage: number = 2,) {
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+  ) {
     return await this.productsService.getProductsByUserId(user, page, perPage);
   }
 
@@ -58,13 +67,6 @@ export class ProductsController {
     return this.productsService.update(id, UpdateProductDto, currentUser);
   }
 
-  @Get('/paginate/filter')
-  async getProductsPagination(
-    @Query('page') page: number = 1,
-    @Query('perPage') perPage: number = 2,
-  ) {
-    return await this.productsService.findByPagination(page, perPage);
-  }
 
   @Delete(':id')
   @UseGuards(JwtGuard)
@@ -73,12 +75,12 @@ export class ProductsController {
     return this.productsService.remove(id, currentUser);
   }
 
-  @Get('/search/detail')
+  @Get()
   async searchProducts(
-    @Query('keyword') keyword: string = '',
-    @Query('searchBy') searchBy: string = '',
-    @Query('page') page: number = 1,
-    @Query('perPage') perPage: number = 2,
+    @Query('keyword') keyword: string,
+    @Query('searchBy') searchBy: string,
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
   ) {
     const query = await this.productsService.searchProducts(
       keyword,
@@ -87,5 +89,27 @@ export class ProductsController {
       perPage,
     );
     return query;
+  }
+
+
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth('JWT-auth')
+  @Get('/yourProduct/byUser/search')
+  async searchYourProduct(
+    @GetUser() user,
+    @Query('keyword') keyword: string,
+    @Query('searchBy') searchBy: string,
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+  ){
+    const query = await this.productsService.searchYourProduct(
+      user,
+      keyword,
+      searchBy,
+      page,
+      perPage,
+    );
+    return query;
+
   }
 }

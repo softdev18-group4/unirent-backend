@@ -6,6 +6,7 @@ import {
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { PrismaService } from '@/prisma/prisma.service';
+import { error } from 'console';
 
 @Injectable()
 export class ReviewsService {
@@ -26,12 +27,12 @@ export class ReviewsService {
         data: {
           text: text,
           rating: rating,
-          reviewerId: currentUser as string,
+          reviewerId: currentUser.id as string,
           productId: id,
         },
       });
     } catch (error) {
-      throw new BadRequestException('Failed to create review');
+      throw new BadRequestException('Cannot create review');
     }
   }
 
@@ -39,15 +40,32 @@ export class ReviewsService {
     return `This action returns all reviews`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} review`;
+  async findOne(id: string) {
+    const review = await this.prisma.review.findUnique({
+      where: { id },
+    });
+
+    if (!review) {
+      throw new Error(`review withID ${id} not found`);
+    }
+
+    return review;
   }
 
-  update(id: number, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
-  }
+  async remove(id: string) {
+    try {
+      const existingReview = await this.prisma.review.findUnique({
+        where: { id },
+      });
 
-  remove(id: number) {
-    return `This action removes a #${id} review`;
+      if (!existingReview) {
+        throw new NotFoundException('Review not found');
+      }
+
+      await this.prisma.review.delete({ where: { id } });
+      return { message: 'delete success' };
+    } catch (error) {
+      throw new BadRequestException('cannot delete review');
+    }
   }
 }

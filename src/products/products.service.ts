@@ -70,7 +70,7 @@ export class ProductsService {
 
       return newProduct;
     } catch (error) {
-      throw new AllExceptionsFilter(error)
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -79,6 +79,20 @@ export class ProductsService {
       where: { id: productId },
       include: {
         rentalOptions: true,
+        owner: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        reviews: {
+          select: {
+            text: true,
+            rating: true,
+            reviewerId: true,
+          },
+        },
       },
     });
 
@@ -100,12 +114,19 @@ export class ProductsService {
             email: true,
           },
         },
+        reviews: {
+          select: {
+            text: true,
+            rating: true,
+            reviewerId: true,
+          },
+        },
       },
     });
     return allproduct;
   }
 
-  async findByPagination(page: number = 1, perPage: number = 2) {
+  async findByPagination(page: number = 1, perPage: number = 5) {
     try {
       const skip = (page - 1) * perPage;
       const query = await this.prisma.product.findMany({
@@ -198,12 +219,20 @@ export class ProductsService {
 
   async getProductsByUserId(user, page, perPage) {
     try {
-      // if (!user) {
-      //   throw new Error('User not found');
-      // }
+     
       const skip = (page - 1) * perPage;
       const userProduct = await this.prisma.product.findMany({
         where: { ownerId: user.id },
+        include:{
+          rentalOptions:true,
+          reviews: true,
+          owner:{
+            select:{
+              firstName:true,
+              lastName:true
+            }
+          }
+        },
         skip: skip,
         take: +perPage,
       });
@@ -220,6 +249,7 @@ export class ProductsService {
         where: { id },
         include: {
           rentalOptions: true,
+          reviews: true,
         },
       });
 
@@ -233,6 +263,7 @@ export class ProductsService {
         );
       }
       await this.prisma.rentalOption.deleteMany({ where: { productId: id } });
+      await this.prisma.review.deleteMany({ where: { productId: id } });
       await this.prisma.product.delete({ where: { id } });
 
       return { message: 'Product deleted successfully' };
@@ -241,7 +272,7 @@ export class ProductsService {
     }
   }
 
-  async searchProducts(keyword = '', searchBy = '', page = 1, perPage = 2) {
+  async searchProducts(keyword = '', searchBy = '', page = 1, perPage = 5) {
     try {
       const allProducts = this.findAll();
       // Define the properties you want to search within
@@ -296,5 +327,58 @@ export class ProductsService {
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
+  }
+
+  async searchYourProduct(currentUser , keyword = '', searchBy = '', page = 1, perPage = 5){
+    try {
+      const allProducts = await this.getProductsByUserId(currentUser, page, perPage);
+      // Define the properties you want to search within
+      console.log(allProducts)
+      let propertiesToSearch = [];
+
+      if (searchBy === '') {
+        propertiesToSearch = [
+          'name',
+          'description',
+          'specifications.brand',
+          'specifications.model',
+          'specifications.processor',
+          'specifications.graphicCard',
+          // Add more properties as needed
+        ];
+      } else if (searchBy === 'name') {
+        propertiesToSearch = ['name'];
+      } else if (searchBy === 'brand') {
+        propertiesToSearch = ['specifications.brand'];
+      } else if (searchBy === 'model') {
+        propertiesToSearch = ['specifications.model'];
+      } else if (searchBy === 'processor') {
+        propertiesToSearch = ['specifications.processor'];
+      } else if (searchBy === 'graphicCard') {
+        propertiesToSearch = ['specifications.graphicCard'];
+      }
+
+      // Filter products based on the search criteria
+      const filteredProducts = (await allProducts).filter((product) => {
+        for (const property of propertiesToSearch) {
+          const propertyValue = getProperty(product, property);
+          if (
+            propertyValue &&
+            propertyValue
+              .toString()
+              .toLowerCase()
+              .includes(keyword.toLowerCase())
+          ) {
+            return true; // Found a match, include this product
+          }
+        }
+        return false; // No match found for this product
+      });
+
+      return filteredProducts;
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+
   }
 }
