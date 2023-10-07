@@ -7,12 +7,11 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { ReviewsController } from './reviews/reviews.controller';
 import { ReviewsModule } from './reviews/reviews.module';
-import { MinioClientModule } from './minio-client/minio-client.module';
 import { UploadModule } from './upload/upload.module';
 import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
+import { ConversationModule } from './conversation/conversation.module';
 
 @Module({
   imports: [
@@ -28,6 +27,7 @@ import { CouponsModule } from './coupons/coupons.module';
     UploadModule,
     OrdersModule,
     CouponsModule,
+    ConversationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

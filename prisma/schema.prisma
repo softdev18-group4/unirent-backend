@@ -8,18 +8,21 @@ datasource db {
 }
 
 model User {
-  id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  firstName  String
-  lastName   String
-  email      String       @unique
-  verified   Boolean?     @default(false)
-  password   String?
-  role       String       @default("user")
-  products   Product[]    @relation("userProducts")
-  reviews    Review[]     @relation("userReviews")
-  ResetToken ResetToken[] @relation("userResetToken")
-  orders     Order[]      @relation("userOrders")
-  coupons    Coupons[]    @relation("userCoupons")
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  firstName       String
+  lastName        String
+  email           String         @unique
+  verified        Boolean?       @default(false)
+  password        String?
+  role            String         @default("user")
+  products        Product[]      @relation("userProducts")
+  reviews         Review[]       @relation("userReviews")
+  ResetToken      ResetToken[]   @relation("userResetToken")
+  orders          Order[]        @relation("userOrders")
+  coupons         Coupons[]      @relation("userCoupons")
+  conversationIDs String[]       @db.ObjectId
+  conversation    Conversation[] @relation(fields: [conversationIDs], references: [id])
+  messages        Message[]      @relation("userMessages")
 
   @@map("users")
 }
@@ -46,7 +49,7 @@ model RentalOption {
   product   Product @relation("productRentalOptions", fields: [productId], references: [id])
   type      String
   priceRate Float
-  order     Order[]   @relation("rentalOrder")
+  order     Order[] @relation("rentalOrder")
 
   // @@unique([productId, type], name: "UniqueRentalTypePerProduct")
   @@map("rental_options")
@@ -112,4 +115,25 @@ model Coupons {
   user            User     @relation("userCoupons", fields: [userAlreadyUsed], references: [id])
 
   @@map("coupons")
+}
+
+model Conversation {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  participants String[]  @db.ObjectId
+  users        User[]    @relation(fields: [participants], references: [id])
+  messages     Message[] @relation("conversationMessage")
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation("conversationMessage", fields: [conversationId], references: [id])
+  senderId       String       @db.ObjectId
+  sender         User         @relation("userMessages", fields: [senderId], references: [id])
+  text           String
+  timestamp      DateTime     @default(now())
+
+  @@map("messages")
 }
