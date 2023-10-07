@@ -219,19 +219,18 @@ export class ProductsService {
 
   async getProductsByUserId(user, page, perPage) {
     try {
-     
       const skip = (page - 1) * perPage;
       const userProduct = await this.prisma.product.findMany({
         where: { ownerId: user.id },
-        include:{
-          rentalOptions:true,
+        include: {
+          rentalOptions: true,
           reviews: true,
-          owner:{
-            select:{
-              firstName:true,
-              lastName:true
-            }
-          }
+          owner: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
         },
         skip: skip,
         take: +perPage,
@@ -329,11 +328,21 @@ export class ProductsService {
     }
   }
 
-  async searchYourProduct(currentUser , keyword = '', searchBy = '', page = 1, perPage = 5){
+  async searchYourProduct(
+    currentUser,
+    keyword = '',
+    searchBy = '',
+    page = 1,
+    perPage = 5,
+  ) {
     try {
-      const allProducts = await this.getProductsByUserId(currentUser, page, perPage);
+      const allProducts = await this.getProductsByUserId(
+        currentUser,
+        page,
+        perPage,
+      );
       // Define the properties you want to search within
-      console.log(allProducts)
+      console.log(allProducts);
       let propertiesToSearch = [];
 
       if (searchBy === '') {
@@ -379,6 +388,5 @@ export class ProductsService {
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
-
   }
 }

@@ -24,44 +24,50 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(createOrderDto: CreateOrderDto, currentUser, productId) {
     try {
       if (!currentUser) {
         throw new UnauthorizedException('Unauthorized');
       }
-      const product = await this.prisma.product.findUnique({ where: { id: productId } })
-      const rentOption = await this.prisma.rentalOption.findUnique({ where: { id: createOrderDto.rentalId } })
-      const date = new Date()
+      const product = await this.prisma.product.findUnique({
+        where: { id: productId },
+      });
+      const rentOption = await this.prisma.rentalOption.findUnique({
+        where: { id: createOrderDto.rentalId },
+      });
+      const date = new Date();
 
       if (rentOption.type.toLowerCase() === 'daily') {
-        date.setDate(date.getDate() + createOrderDto.rentTime)
-      }
-      else if (rentOption.type.toLowerCase() === 'weekly') {
-        date.setDate(date.getDate() + (createOrderDto.rentTime * 7))
-      }
-      else if (rentOption.type.toLowerCase() === 'monthly') {
-        date.setMonth(date.getMonth() + createOrderDto.rentTime)
-      }
-      else {
-        throw new BadRequestException('Invalid rent type')
+        date.setDate(date.getDate() + createOrderDto.rentTime);
+      } else if (rentOption.type.toLowerCase() === 'weekly') {
+        date.setDate(date.getDate() + createOrderDto.rentTime * 7);
+      } else if (rentOption.type.toLowerCase() === 'monthly') {
+        date.setMonth(date.getMonth() + createOrderDto.rentTime);
+      } else {
+        throw new BadRequestException('Invalid rent type');
       }
 
-      if (date > product.availableDays.endDate || date < product.availableDays.startDate) {
-        throw new BadRequestException('Cannot be rented beyond the date of opening for rent.')
+      if (
+        date > product.availableDays.endDate ||
+        date < product.availableDays.startDate
+      ) {
+        throw new BadRequestException(
+          'Cannot be rented beyond the date of opening for rent.',
+        );
       }
 
       if (product.availability === false) {
-        throw new BadRequestException('Product not available.')
+        throw new BadRequestException('Product not available.');
       }
-      console.log(createOrderDto)
+      console.log(createOrderDto);
       const newOrder = await this.prisma.order.create({
         data: {
           productId: productId,
           userId: currentUser.id,
           rentalId: createOrderDto.rentalId,
           status: createOrderDto.status,
-          rentTime: createOrderDto.rentTime
+          rentTime: createOrderDto.rentTime,
         },
       });
 
@@ -71,13 +77,13 @@ export class OrdersService {
     }
   }
 
-  findAll(page:number = 1, perPage:number = 5) {
+  findAll(page: number = 1, perPage: number = 5) {
     try {
       const skip = (page - 1) * perPage;
       return this.prisma.order.findMany({
         include: {
           product: true,
-          rentalOption: true
+          rentalOption: true,
         },
         skip: skip,
         take: +perPage,
@@ -92,7 +98,7 @@ export class OrdersService {
       where: { id },
       include: {
         product: true,
-        rentalOption: true
+        rentalOption: true,
       },
     });
   }
@@ -121,7 +127,7 @@ export class OrdersService {
         data: {
           rentalId: updateOrderDto.rentalId,
           status: updateOrderDto.status,
-          rentTime: updateOrderDto.rentTime
+          rentTime: updateOrderDto.rentTime,
         },
       });
 
@@ -160,7 +166,7 @@ export class OrdersService {
         where: { userId: currentUser.id },
         include: {
           product: true,
-          rentalOption: true
+          rentalOption: true,
         },
         skip: skip,
         take: +perPage,
@@ -171,10 +177,9 @@ export class OrdersService {
     }
   }
 
-
   async searchYourOrder(currentUser, keyword, searchBy, page = 1, perPage = 5) {
     try {
-      const allOrder = await this.findYourOrder(currentUser, page, perPage)
+      const allOrder = await this.findYourOrder(currentUser, page, perPage);
       // Define the properties you want to search withi
       let propertiesToSearch = [];
 
@@ -221,7 +226,5 @@ export class OrdersService {
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
-
   }
 }
-

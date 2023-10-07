@@ -39,7 +39,7 @@ export class ProductsController {
   // ) {
   //   return await this.productsService.findByPagination(page, perPage);
   // }
-  
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findById(id);
@@ -67,7 +67,6 @@ export class ProductsController {
     return this.productsService.update(id, UpdateProductDto, currentUser);
   }
 
-
   @Delete(':id')
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
@@ -91,7 +90,6 @@ export class ProductsController {
     return query;
   }
 
-
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
   @Get('/yourProduct/byUser/search')
@@ -101,7 +99,7 @@ export class ProductsController {
     @Query('searchBy') searchBy: string,
     @Query('page') page: number,
     @Query('perPage') perPage: number,
-  ){
+  ) {
     const query = await this.productsService.searchYourProduct(
       user,
       keyword,
@@ -110,6 +108,5 @@ export class ProductsController {
       perPage,
     );
     return query;
-
   }
 }

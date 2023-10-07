@@ -20,7 +20,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 @ApiTags('orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
@@ -28,7 +28,7 @@ export class OrdersController {
   create(
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() currentUser,
-    @Param('productId') productId: string
+    @Param('productId') productId: string,
   ) {
     // deepcode ignore WrongNumberOfArgs: <please specify a reason of ignoring this>
     return this.ordersService.create(createOrderDto, currentUser, productId);

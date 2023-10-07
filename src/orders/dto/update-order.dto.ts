@@ -3,7 +3,6 @@ import { CreateOrderDto } from './create-order.dto';
 import { IsOptional, IsUUID } from 'class-validator';
 
 export class UpdateOrderDto {
-
   @IsOptional()
   rentalId?: string;
 
@@ -11,5 +10,5 @@ export class UpdateOrderDto {
   status?: string;
 
   @IsOptional()
-  rentTime?: number
+  rentTime?: number;
 }

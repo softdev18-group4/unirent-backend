@@ -1,5 +1,9 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { User } from '@prisma/client';
 
@@ -15,16 +19,19 @@ export class ConversationService {
     return this.prisma.conversation.findUnique({ where: { id } });
   }
 
-  async createConversation(createConversationDto: CreateConversationDto, currentUser: User) {
+  async createConversation(
+    createConversationDto: CreateConversationDto,
+    currentUser: User,
+  ) {
     const existingConversation = await this.prisma.conversation.findFirst({
       where: {
         participants: {
-          hasEvery: [ createConversationDto.id, currentUser.id ],
-        }
+          hasEvery: [createConversationDto.id, currentUser.id],
+        },
       },
     });
     if (existingConversation) {
-      throw new BadRequestException({ name: 'Conversation already exists'})
+      throw new BadRequestException({ name: 'Conversation already exists' });
     }
 
     return await this.prisma.conversation.create({
@@ -48,9 +55,9 @@ export class ConversationService {
           take: 1,
           orderBy: {
             timestamp: 'desc',
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
@@ -60,10 +67,10 @@ export class ConversationService {
     });
 
     if (!existingConversation) {
-      throw new NotFoundException({ name: 'Conversation not found'})
+      throw new NotFoundException({ name: 'Conversation not found' });
     }
 
-    await this.prisma.conversation.delete({ where: { id } })
-    return { message: 'Conversation deleted succussfully'}
+    await this.prisma.conversation.delete({ where: { id } });
+    return { message: 'Conversation deleted succussfully' };
   }
 }
