@@ -12,6 +12,8 @@ import { UploadModule } from './upload/upload.module';
 import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { ConversationModule } from './conversation/conversation.module';
+import { MessageService } from './message/message.service';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -28,8 +30,9 @@ import { ConversationModule } from './conversation/conversation.module';
     OrdersModule,
     CouponsModule,
     ConversationModule,
+    MessageModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MessageService],
 })
 export class AppModule {}
