@@ -21,11 +21,11 @@ export class CreateProductDto {
   @IsNotEmpty()
   rentalOptions: RentalOptions[];
 
+
   @ApiProperty()
   @IsNotEmpty()
   availableDays: {
     startDate: Date;
-
     endDate: Date;
   };
 }

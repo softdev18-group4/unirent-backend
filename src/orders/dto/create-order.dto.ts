@@ -14,14 +14,17 @@ export class CreateOrderDto {
   // productId: string;
 
   // userId: string;
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   rentalId: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   status: string;
 
+  @ApiProperty()
   @IsInt()
   @IsNotEmpty()
   rentTime: number;

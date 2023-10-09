@@ -9,6 +9,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { AllExceptionsFilter } from '@/http-exception.filter';
 import { PrismaService } from '@/prisma/prisma.service';
+import { UpdateProductDto } from '@/products/dto/update-product.dto';
 
 function getProperty(obj, path) {
   const keys = path.split('.');
@@ -24,15 +25,17 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(createOrderDto: CreateOrderDto, currentUser, productId) {
     try {
+
       if (!currentUser) {
         throw new UnauthorizedException('Unauthorized');
       }
       const product = await this.prisma.product.findUnique({
         where: { id: productId },
       });
+
       const rentOption = await this.prisma.rentalOption.findUnique({
         where: { id: createOrderDto.rentalId },
       });
@@ -60,7 +63,8 @@ export class OrdersService {
       if (product.availability === false) {
         throw new BadRequestException('Product not available.');
       }
-      console.log(createOrderDto);
+
+
       const newOrder = await this.prisma.order.create({
         data: {
           productId: productId,
@@ -70,6 +74,23 @@ export class OrdersService {
           rentTime: createOrderDto.rentTime,
         },
       });
+
+      await this.prisma.product.update({
+        where: { id: productId },
+        data: {
+          availability: false
+        }
+      });
+
+      await this.prisma.booking.create({
+        data: {
+          productId: productId,
+          bookingUserId: currentUser.id,
+          rentalId: createOrderDto.rentalId,
+          status: createOrderDto.status,
+          rentTime: createOrderDto.rentTime,
+        }
+      })
 
       return { message: 'Order created successfully', order: newOrder };
     } catch (error) {
@@ -107,6 +128,10 @@ export class OrdersService {
     try {
       const existingOrder = await this.prisma.order.findUnique({
         where: { id },
+        include: {
+          product: true,
+          rentalOption: true,
+        },
       });
       const userId = existingOrder?.userId;
 
@@ -131,7 +156,18 @@ export class OrdersService {
         },
       });
 
-      return { message: 'update success', update: updateOrder };
+      const updateBooking = await this.prisma.booking.update({
+        where: {
+          productId: existingOrder.product.id,
+        },
+        data: {
+          rentalId: updateOrderDto.rentalId,
+          status: updateOrderDto.status,
+          rentTime: updateOrderDto.rentTime,
+        }
+      })
+
+      return { message: 'update success', order: updateOrder ,booking: updateBooking};
     } catch (error) {
       throw new Error(error);
     }
@@ -151,6 +187,7 @@ export class OrdersService {
         throw new BadRequestException('Permission Denied');
       }
 
+      await this.prisma.booking.deleteMany({ where: { productId: existingOrder.productId } })
       await this.prisma.order.delete({ where: { id } });
 
       return { message: 'Deleted successfully' };

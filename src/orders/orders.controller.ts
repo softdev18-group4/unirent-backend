@@ -30,7 +30,6 @@ export class OrdersController {
     @GetUser() currentUser,
     @Param('productId') productId: string,
   ) {
-    // deepcode ignore WrongNumberOfArgs: <please specify a reason of ignoring this>
     return this.ordersService.create(createOrderDto, currentUser, productId);
   }
 

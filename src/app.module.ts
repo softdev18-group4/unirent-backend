@@ -12,6 +12,8 @@ import { UploadModule } from './upload/upload.module';
 import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { ConversationModule } from './conversation/conversation.module';
+import { BookingModule } from './booking/booking.module';
+
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { ConversationModule } from './conversation/conversation.module';
     OrdersModule,
     CouponsModule,
     ConversationModule,
+    BookingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
