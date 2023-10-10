@@ -21,7 +21,6 @@ export class CreateProductDto {
   @IsNotEmpty()
   rentalOptions: RentalOptions[];
 
-
   @ApiProperty()
   @IsNotEmpty()
   availableDays: {

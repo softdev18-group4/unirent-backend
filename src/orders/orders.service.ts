@@ -25,10 +25,9 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(createOrderDto: CreateOrderDto, currentUser, productId) {
     try {
-
       if (!currentUser) {
         throw new UnauthorizedException('Unauthorized');
       }
@@ -64,7 +63,6 @@ export class OrdersService {
         throw new BadRequestException('Product not available.');
       }
 
-
       const newOrder = await this.prisma.order.create({
         data: {
           productId: productId,
@@ -78,8 +76,8 @@ export class OrdersService {
       await this.prisma.product.update({
         where: { id: productId },
         data: {
-          availability: false
-        }
+          availability: false,
+        },
       });
 
       await this.prisma.booking.create({
@@ -89,8 +87,8 @@ export class OrdersService {
           rentalId: createOrderDto.rentalId,
           status: createOrderDto.status,
           rentTime: createOrderDto.rentTime,
-        }
-      })
+        },
+      });
 
       return { message: 'Order created successfully', order: newOrder };
     } catch (error) {
@@ -164,10 +162,14 @@ export class OrdersService {
           rentalId: updateOrderDto.rentalId,
           status: updateOrderDto.status,
           rentTime: updateOrderDto.rentTime,
-        }
-      })
+        },
+      });
 
-      return { message: 'update success', order: updateOrder ,booking: updateBooking};
+      return {
+        message: 'update success',
+        order: updateOrder,
+        booking: updateBooking,
+      };
     } catch (error) {
       throw new Error(error);
     }
@@ -187,7 +189,9 @@ export class OrdersService {
         throw new BadRequestException('Permission Denied');
       }
 
-      await this.prisma.booking.deleteMany({ where: { productId: existingOrder.productId } })
+      await this.prisma.booking.deleteMany({
+        where: { productId: existingOrder.productId },
+      });
       await this.prisma.order.delete({ where: { id } });
 
       return { message: 'Deleted successfully' };

@@ -262,7 +262,7 @@ export class ProductsService {
         );
       }
 
-      await this.prisma.booking.deleteMany({where: {productId: id}});
+      await this.prisma.booking.deleteMany({ where: { productId: id } });
       await this.prisma.rentalOption.deleteMany({ where: { productId: id } });
       await this.prisma.review.deleteMany({ where: { productId: id } });
       await this.prisma.product.delete({ where: { id } });
@@ -344,7 +344,6 @@ export class ProductsService {
         perPage,
       );
       // Define the properties you want to search within
-      console.log(allProducts);
       let propertiesToSearch = [];
 
       if (searchBy === '') {
@@ -386,7 +385,13 @@ export class ProductsService {
         return false; // No match found for this product
       });
 
-      return filteredProducts;
+      const startIndex = (page - 1) * perPage;
+      const endIndex = startIndex + perPage;
+
+      // Slice the filtered products to return only the items for the current page
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+      return paginatedProducts;
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }

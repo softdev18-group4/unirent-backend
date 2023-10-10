@@ -14,7 +14,6 @@ import { CouponsModule } from './coupons/coupons.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { BookingModule } from './booking/booking.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
