@@ -28,4 +28,5 @@ export class CreateOrderDto {
   @IsInt()
   @IsNotEmpty()
   rentTime: number;
+
 }

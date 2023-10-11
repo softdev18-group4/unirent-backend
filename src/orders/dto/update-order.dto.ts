@@ -14,4 +14,8 @@ export class UpdateOrderDto {
   @ApiProperty()
   @IsOptional()
   rentTime?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  amount?: number;
 }

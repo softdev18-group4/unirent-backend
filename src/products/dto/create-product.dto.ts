@@ -61,7 +61,6 @@ export class RentalOptions {
   type: string;
 
   @ApiProperty()
-  @IsInt()
   priceRate: number;
 
   isSelected: true;

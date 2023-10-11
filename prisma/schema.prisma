@@ -102,6 +102,7 @@ model Order {
   user         User         @relation("userOrders", fields: [userId], references: [id])
   rentalId     String       @db.ObjectId
   rentalOption RentalOption @relation("rentalOrder", fields: [rentalId], references: [id])
+  amount       Float
   status       String
   rentTime     Int
 

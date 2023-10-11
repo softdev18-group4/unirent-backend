@@ -13,6 +13,9 @@ import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { BookingModule } from './booking/booking.module';
+import { PaymentController } from './payment/payment.controller';
+import { PaymentModule } from './payment/payment.module';
+import { PaymentService } from './payment/payment.service';
 
 @Module({
   imports: [
@@ -30,8 +33,9 @@ import { BookingModule } from './booking/booking.module';
     CouponsModule,
     ConversationModule,
     BookingModule,
+    PaymentModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, PaymentController],
+  providers: [AppService, PaymentService],
 })
 export class AppModule {}
