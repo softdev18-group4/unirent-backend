@@ -10,7 +10,7 @@ import { error } from 'console';
 
 @Injectable()
 export class ReviewsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(id: string, createReviewDto: CreateReviewDto, currentUser) {
     const { text, rating } = createReviewDto;
@@ -34,10 +34,6 @@ export class ReviewsService {
     } catch (error) {
       throw new BadRequestException('Cannot create review');
     }
-  }
-
-  findAll() {
-    return `This action returns all reviews`;
   }
 
   async findOne(id: string) {
@@ -68,4 +64,5 @@ export class ReviewsService {
       throw new BadRequestException('cannot delete review');
     }
   }
+
 }
