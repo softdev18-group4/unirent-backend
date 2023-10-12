@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -39,6 +39,7 @@ export class AuthController {
     return await this.authService.OAuthWithGoogle(req.user);
   }
 
+  @ApiBearerAuth('JWT-auth')
   @Get('profile')
   @UseGuards(JwtGuard)
   async profile(@GetUser() user) {

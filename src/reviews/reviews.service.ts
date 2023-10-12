@@ -10,7 +10,7 @@ import { error } from 'console';
 
 @Injectable()
 export class ReviewsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(id: string, createReviewDto: CreateReviewDto, currentUser) {
     const { text, rating } = createReviewDto;
@@ -64,5 +64,4 @@ export class ReviewsService {
       throw new BadRequestException('cannot delete review');
     }
   }
-
 }
