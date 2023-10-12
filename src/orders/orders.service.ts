@@ -25,7 +25,7 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(createOrderDto: CreateOrderDto, currentUser, productId) {
     try {
       if (!currentUser) {
@@ -50,20 +50,23 @@ export class OrdersService {
         throw new BadRequestException('Invalid rent type');
       }
 
-      if (!(date >= product.availableDays.startDate && date <= product.availableDays.endDate)) {
-
-        console.log(date)
-        console.log(product.availableDays)
+      if (
+        !(
+          date >= product.availableDays.startDate &&
+          date <= product.availableDays.endDate
+        )
+      ) {
+        console.log(date);
+        console.log(product.availableDays);
         throw new BadRequestException(
           'Cannot be rented beyond the date of opening for rent.',
         );
       }
 
       if (product.availability === false) {
-        console.log(product.availability)
+        console.log(product.availability);
         throw new BadRequestException('Product not available.');
       } else {
-
         const newOrder = await this.prisma.order.create({
           data: {
             productId: productId,
@@ -71,10 +74,10 @@ export class OrdersService {
             rentalId: createOrderDto.rentalId,
             status: createOrderDto.status,
             rentTime: createOrderDto.rentTime,
-            amount: rentOption.priceRate
+            amount: rentOption.priceRate,
           },
         });
-        
+
         await this.prisma.product.update({
           where: { id: productId },
           data: {
@@ -91,8 +94,12 @@ export class OrdersService {
             rentTime: createOrderDto.rentTime,
           },
         });
-        
-        return { message: 'Order created successfully', order: newOrder, booking: newBooking};
+
+        return {
+          message: 'Order created successfully',
+          order: newOrder,
+          booking: newBooking,
+        };
       }
     } catch (error) {
       throw new AllExceptionsFilter(error);
@@ -154,7 +161,7 @@ export class OrdersService {
           rentalId: updateOrderDto.rentalId,
           status: updateOrderDto.status,
           rentTime: updateOrderDto.rentTime,
-          amount: updateOrderDto.amount
+          amount: updateOrderDto.amount,
         },
       });
 
