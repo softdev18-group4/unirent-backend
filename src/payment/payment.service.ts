@@ -11,9 +11,12 @@ export class PaymentService {
     private prisma: PrismaService,
     private configService: ConfigService,
   ) {
-    this.stripe = new Stripe(configService.get<string>('API_SECRET_KEY'), {
-      apiVersion: '2023-08-16',
-    });
+    this.stripe = new Stripe(
+      configService.get<string>('STRIPE_API_SECRET_KEY'),
+      {
+        apiVersion: '2023-08-16',
+      },
+    );
   }
   async createPayment(orderId: string, currentUser: { id: any }): Promise<any> {
     let sumAmount = 0;

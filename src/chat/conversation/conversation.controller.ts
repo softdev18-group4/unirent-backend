@@ -20,9 +20,10 @@ import { CreateMessageDto } from '../dto/create-message.dto';
 @ApiTags('conversations')
 @Controller('conversation')
 export class ConversationController {
-  constructor(private readonly conversationService: ConversationService,
-              private readonly messageService: MessageService
-              ) {}
+  constructor(
+    private readonly conversationService: ConversationService,
+    private readonly messageService: MessageService,
+  ) {}
 
   @Get()
   async getAll() {
@@ -81,8 +82,14 @@ export class ConversationController {
   @Post('/message')
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
-  async createMessage(@Body() createMessageDto: CreateMessageDto, @GetUser() currentUser: User) {
-    console.log(currentUser)
-    return await this.messageService.createMessage(currentUser, createMessageDto);
+  async createMessage(
+    @Body() createMessageDto: CreateMessageDto,
+    @GetUser() currentUser: User,
+  ) {
+    console.log(currentUser);
+    return await this.messageService.createMessage(
+      currentUser,
+      createMessageDto,
+    );
   }
 }

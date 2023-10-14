@@ -5,31 +5,38 @@ import { User } from '@prisma/client';
 
 @Injectable()
 export class JoinedConversationService {
-    constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-    async create(createJoinedConversationDto: CreateJoinedConversationDto, currentUser: User) {
-        return await this.prisma.joinedConversation.create({
-            data: {
-                socketId: createJoinedConversationDto.socketId,
-                userId: currentUser.id,
-                conversationId: createJoinedConversationDto.conversationId,
-            }
-        });
-    }
+  async create(
+    createJoinedConversationDto: CreateJoinedConversationDto,
+    currentUser: User,
+  ) {
+    return await this.prisma.joinedConversation.create({
+      data: {
+        socketId: createJoinedConversationDto.socketId,
+        userId: currentUser.id,
+        conversationId: createJoinedConversationDto.conversationId,
+      },
+    });
+  }
 
-    async findByUser(userId: string) {
-        return await this.prisma.joinedConversation.findMany({ where: { userId } });
-    }
+  async findByUser(userId: string) {
+    return await this.prisma.joinedConversation.findMany({ where: { userId } });
+  }
 
-    async findByConversation(conversationId: string) {
-        return await this.prisma.joinedConversation.findMany({ where: { conversationId } })
-    }
+  async findByConversation(conversationId: string) {
+    return await this.prisma.joinedConversation.findMany({
+      where: { conversationId },
+    });
+  }
 
-    async deleteBySocketId(socketId: string) {
-        return await this.prisma.joinedConversation.deleteMany({ where: { socketId } });
-    }
+  async deleteBySocketId(socketId: string) {
+    return await this.prisma.joinedConversation.deleteMany({
+      where: { socketId },
+    });
+  }
 
-    async deleteAll() {
-        await this.prisma.joinedConversation.deleteMany();
-    }
+  async deleteAll() {
+    await this.prisma.joinedConversation.deleteMany();
+  }
 }

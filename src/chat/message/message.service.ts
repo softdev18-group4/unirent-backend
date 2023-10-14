@@ -8,14 +8,10 @@ import { MessageSeenDto } from '../dto/message-seen.dto';
 @Injectable()
 export class MessageService {
   constructor(
-    private readonly prisma: PrismaService,
-  ) // private conversationGateway: ConversationGateway,
-  {}
+    private readonly prisma: PrismaService, // private conversationGateway: ConversationGateway,
+  ) {}
 
-  async createMessage(
-    currentUser : User,
-    createMessageDto: CreateMessageDto,
-  ) {
+  async createMessage(currentUser: User, createMessageDto: CreateMessageDto) {
     console.log(currentUser);
     const createdMessage = await this.prisma.message.create({
       data: {
@@ -48,10 +44,12 @@ export class MessageService {
 
   async markMessageAsSeen(messageSeenDto: MessageSeenDto) {
     const { messageId } = messageSeenDto;
-    const message = await this.prisma.message.findFirst({ where: { id: messageId } });
+    const message = await this.prisma.message.findFirst({
+      where: { id: messageId },
+    });
     if (!message) {
-      throw new NotFoundException({ name: "Message not found!" })
+      throw new NotFoundException({ name: 'Message not found!' });
     }
-    message.seen = true;  
+    message.seen = true;
   }
 }

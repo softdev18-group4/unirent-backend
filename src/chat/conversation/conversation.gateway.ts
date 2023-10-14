@@ -88,7 +88,11 @@ export class ConversationGateway
   }
 
   @SubscribeMessage('paginateConversation')
-  async handlePaginateConversation(clinet: Socket, page: number, perPage: number) {
+  async handlePaginateConversation(
+    clinet: Socket,
+    page: number,
+    perPage: number,
+  ) {
     perPage = perPage > 100 ? 100 : perPage;
     const conversations = await this.conversationService.getConversationByUser(
       clinet.data.user,
@@ -141,13 +145,17 @@ export class ConversationGateway
   @SubscribeMessage('joinConversation')
   async handleJoinConversation(client: Socket, payload: ConversationDto) {
     try {
-      const messages = await this.messageService.getMessagesByConversation(payload.conversationId);
+      const messages = await this.messageService.getMessagesByConversation(
+        payload.conversationId,
+      );
 
       // Save Connection to Room
-      await this.joindConversationService.create({ socketId: client.id, conversationId: payload.conversationId }, client.data.user);
+      await this.joindConversationService.create(
+        { socketId: client.id, conversationId: payload.conversationId },
+        client.data.user,
+      );
       // Send last messages from Conversation to User
       await this.server.to(client.id).emit('messages', messages);
-
     } catch (error) {
       throw new WsException(error?.message);
     }
@@ -162,10 +170,16 @@ export class ConversationGateway
   @SubscribeMessage('newMessage')
   async handleNewMessage(client: Socket, payload: CreateMessageDto) {
     try {
-      const createdMessage = await this.messageService.createMessage(client.data.user, payload);
-      const conversation = await this.conversationService.getConversation(createdMessage.conversationId);
-      const joinedUsers = await this.joindConversationService.findByConversation(conversation.id);
-      // Send new Message to all joined Users of the conversation (currently online) 
+      const createdMessage = await this.messageService.createMessage(
+        client.data.user,
+        payload,
+      );
+      const conversation = await this.conversationService.getConversation(
+        createdMessage.conversationId,
+      );
+      const joinedUsers =
+        await this.joindConversationService.findByConversation(conversation.id);
+      // Send new Message to all joined Users of the conversation (currently online)
       for (const user of joinedUsers) {
         await this.server.to(user.socketId).emit('newMessage', createdMessage);
       }
@@ -177,7 +191,7 @@ export class ConversationGateway
   @SubscribeMessage('messageSeen')
   async handleMessageSeen(client: Socket, payload: MessageSeenDto) {
     try {
-      const message = await this.messageService.markMessageAsSeen(payload)
+      const message = await this.messageService.markMessageAsSeen(payload);
       this.server.emit('messageSeen', message);
     } catch (error) {
       throw new WsException(error?.message);

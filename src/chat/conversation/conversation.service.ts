@@ -17,11 +17,11 @@ export class ConversationService {
   }
 
   async getConversation(id: string) {
-    return await this.prisma.conversation.findUnique({ 
+    return await this.prisma.conversation.findUnique({
       where: { id },
       include: {
         messages: true,
-      } 
+      },
     });
   }
 
@@ -46,7 +46,10 @@ export class ConversationService {
     return await this.prisma.conversation.create({
       data: {
         users: {
-          connect: [{ id: currentUser.id }, { id: createConversationDto.userId }],
+          connect: [
+            { id: currentUser.id },
+            { id: createConversationDto.userId },
+          ],
         },
       },
     });

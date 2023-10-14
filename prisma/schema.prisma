@@ -34,15 +34,17 @@ model Product {
   id             String         @id @default(auto()) @map("_id") @db.ObjectId
   name           String
   description    String
+  imageName      String[]       
   ownerId        String         @db.ObjectId
   owner          User           @relation("userProducts", fields: [ownerId], references: [id])
   reviews        Review[]       @relation("productReviews")
   rentalOptions  RentalOption[] @relation("productRentalOptions")
   specifications Specifications
+  location       String
   availability   Boolean
   availableDays  AvailableDays
   orders         Order[]        @relation("orderProduct")
-  booking        Booking[]         @relation("productBooking")
+  booking        Booking[]      @relation("productBooking")
 
   @@map("products")
 }
@@ -51,7 +53,7 @@ model RentalOption {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   productId String  @db.ObjectId
   product   Product @relation("productRentalOptions", fields: [productId], references: [id])
-  type      String
+  type      String  
   priceRate Float
   order     Order[] @relation("rentalOrder")
   booking   Booking[] @relation("rentalBooking")
@@ -116,7 +118,7 @@ model Coupons {
   expireDate      DateTime
   code            String
   discount        Float
-  amount          Int
+  amount          Int      
   userAlreadyUsed String[] @db.ObjectId
   user            User     @relation("userCoupons", fields: [userAlreadyUsed], references: [id])
 

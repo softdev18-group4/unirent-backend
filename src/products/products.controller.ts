@@ -13,8 +13,10 @@ import {
 import { ProductsService } from './products.service';
 import { GetUser } from '@/common/decorators/get-users.decorator';
 import { JwtGuard } from '@/common/guards/jwt.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product.dto';
+import { ApiQueryOptional } from '@/decorators/api-query-optional.decorator';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -56,15 +58,15 @@ export class ProductsController {
     return await this.productsService.getProductsByUserId(user, page, perPage);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
-  update(
+  async update(
     @Param('id') id: string,
-    @Body() UpdateProductDto,
+    @Body() updateProductDto: UpdateProductDto,
     @GetUser() currentUser,
   ) {
-    return this.productsService.update(id, UpdateProductDto, currentUser);
+    return await this.productsService.update(id, updateProductDto, currentUser);
   }
 
   @Delete(':id')
@@ -75,6 +77,7 @@ export class ProductsController {
   }
 
   @Get()
+  @ApiQueryOptional(['keyword', 'searchBy', 'page', 'perPage'])
   async searchProducts(
     @Query('keyword') keyword: string,
     @Query('searchBy') searchBy: string,
@@ -90,9 +93,10 @@ export class ProductsController {
     return query;
   }
 
+  @Get('/yourProduct/byUser/search')
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
-  @Get('/yourProduct/byUser/search')
+  @ApiQueryOptional(['keyword', 'searchBy', 'page', 'perPage'])
   async searchYourProduct(
     @GetUser() user,
     @Query('keyword') keyword: string,

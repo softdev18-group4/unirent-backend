@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class ConversationDto {
-    @IsNotEmpty()
-    @IsString()
-    conversationId: string;
+  @IsNotEmpty()
+  @IsString()
+  conversationId: string;
 }

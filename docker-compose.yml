@@ -19,6 +19,7 @@ services:
       - MINIO_ENDPOINT
       - MINIO_BUCKET
       - MINIO_PORT
+      - STRIPE_API_SECRET_KEY
 
     ports:
       - '${APP_PORT}:${APP_PORT}'
