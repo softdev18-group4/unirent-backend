@@ -58,12 +58,10 @@ export class AuthService {
         password: hashedPassword,
       });
 
-      return {
-        access_token: this.generateToken({
-          userId: createdUser.id,
-          role: Role.User,
-        }),
-      };
+      return this.generateToken({
+        userId: createdUser.id,
+        role: Role.User,
+      });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new HttpException(
@@ -100,12 +98,10 @@ export class AuthService {
         throw new UnauthorizedException('Invalid password');
       }
 
-      return {
-        access_token: this.generateToken({
-          userId: userExisting.id,
-          role: userExisting.role,
-        }),
-      };
+      return this.generateToken({
+        userId: userExisting.id,
+        role: userExisting.role,
+      });
     } catch (error) {
       throw new HttpException(
         'Something went wrong',
