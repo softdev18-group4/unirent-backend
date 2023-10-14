@@ -17,7 +17,7 @@ import { AuthService } from './auth.service';
 
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -30,14 +30,14 @@ export class AuthController {
   @Post('sign-up')
   async signup(@Body() signUpDto: SignUpDto, @Res() res) {
     const token = await this.authService.signUp(signUpDto);
-    res.setHeader('Authorization', `${token}}`);
+    res.setHeader('Authorization', `${token}`);
     return res.status(201).json({ message: 'Sign up successfully' });
   }
 
   @Post('sign-in')
   async signin(@Body() signInDto: SignInDto, @Res() res) {
     const token = await this.authService.signIn(signInDto);
-    res.setHeader('Authorization', `${token}}`);
+    res.setHeader('Authorization', `${token}`);
     return res.status(200).json({ message: 'Sign in successfully' });
   }
 
@@ -51,6 +51,7 @@ export class AuthController {
     return await this.authService.OAuthWithGoogle(req.user);
   }
 
+  @ApiBearerAuth('JWT-auth')
   @Get('profile')
   @UseGuards(JwtGuard)
   async profile(@GetUser() user) {
