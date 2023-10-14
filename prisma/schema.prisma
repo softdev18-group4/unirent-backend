@@ -23,7 +23,9 @@ model User {
   conversationIDs String[]       @db.ObjectId
   conversation    Conversation[] @relation(fields: [conversationIDs], references: [id])
   messages        Message[]      @relation("userMessages")
-  booking     Booking[]     @relation("userBooking")
+  booking         Booking[]       @relation("userBooking")
+  connectedUser   ConnectedUser[] @relation("userConnectedUser")
+  joinedConversation JoinedConversation[] @relation("userJoinedConversation")
 
   @@map("users")
 }
@@ -126,6 +128,7 @@ model Conversation {
   participants String[]  @db.ObjectId
   users        User[]    @relation(fields: [participants], references: [id])
   messages     Message[] @relation("conversationMessage")
+  joinedConversation JoinedConversation[] @relation("conversationJoinedConversation")
 
   @@map("conversations")
 }
@@ -138,6 +141,7 @@ model Message {
   sender         User         @relation("userMessages", fields: [senderId], references: [id])
   text           String
   timestamp      DateTime     @default(now())
+  seen           Boolean      @default(false)
 
   @@map("messages")
 }
@@ -154,4 +158,24 @@ model Booking {
   rentTime      Int
 
   @@map("booking")
+}
+
+model ConnectedUser {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  socketId      String
+  userId        String      @db.ObjectId
+  user          User        @relation("userConnectedUser", fields: [userId], references: [id])
+
+  @@map("connected_user")        
+}
+
+model JoinedConversation {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  socketId      String
+  userId        String      @db.ObjectId
+  user          User        @relation("userJoinedConversation", fields: [userId], references: [id])
+  conversationId  String    @db.ObjectId
+  conversation   Conversation @relation("conversationJoinedConversation", fields: [conversationId], references: [id])
+
+  @@map("joined_conversation")
 }
