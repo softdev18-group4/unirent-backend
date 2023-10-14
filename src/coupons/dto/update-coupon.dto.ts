@@ -4,27 +4,26 @@ import { IsDate, IsOptional, IsString, IsInt } from 'class-validator';
 import { User } from '@prisma/client';
 
 export class UpdateCouponDto {
+  @ApiProperty()
+  @IsOptional()
+  expireDate?: Date;
 
-    @ApiProperty()
-    @IsOptional()
-    expireDate?: Date;
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  code?: string;
 
-    @ApiProperty()
-    @IsString()
-    @IsOptional()
-    code?: string;
+  @ApiProperty()
+  @IsInt()
+  @IsOptional()
+  discount?: number;
 
-    @ApiProperty()
-    @IsInt()
-    @IsOptional()
-    discount?: number;
+  @ApiProperty()
+  @IsInt()
+  @IsOptional()
+  amount?: number;
 
-    @ApiProperty()
-    @IsInt()
-    @IsOptional()
-    amount?: number
-
-    @ApiProperty()
-    @IsOptional()
-    userAlreadyUsed?: string[]
+  @ApiProperty()
+  @IsOptional()
+  userAlreadyUsed?: string[];
 }

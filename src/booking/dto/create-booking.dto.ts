@@ -1,19 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsInt,
-  IsArray,
-  isJSON,
-  isString,
-  isNumber,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsInt } from 'class-validator';
 
-export class CreateOrderDto {
-  // productId: string;
+export class CreateBookingDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  productId: string;
 
-  // userId: string;
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  bookingUserId: string;
+
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

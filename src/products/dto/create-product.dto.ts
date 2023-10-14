@@ -25,7 +25,6 @@ export class CreateProductDto {
   @IsNotEmpty()
   availableDays: {
     startDate: Date;
-
     endDate: Date;
   };
 }
@@ -62,7 +61,6 @@ export class RentalOptions {
   type: string;
 
   @ApiProperty()
-  @IsInt()
   priceRate: number;
 
   isSelected: true;

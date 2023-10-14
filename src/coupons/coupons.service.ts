@@ -6,13 +6,12 @@ import { AllExceptionsFilter } from '@/http-exception.filter';
 
 @Injectable()
 export class CouponsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(createCouponDto: CreateCouponDto, currentUser) {
-
     try {
-      const role = currentUser.role.toLowerCase()
+      const role = currentUser.role.toLowerCase();
       if (role !== 'admin') {
-        throw new UnauthorizedException('Unauthorized')
+        throw new UnauthorizedException('Unauthorized');
       }
 
       const newCoupon = await this.prisma.coupons.create({
@@ -21,12 +20,12 @@ export class CouponsService {
           code: createCouponDto.code,
           discount: createCouponDto.discount,
           amount: createCouponDto.amount,
-          userAlreadyUsed: []
-        }
+          userAlreadyUsed: [],
+        },
       });
       return newCoupon;
     } catch (error) {
-      throw new AllExceptionsFilter(error)
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -40,7 +39,7 @@ export class CouponsService {
 
   async findOne(id: string) {
     try {
-      return await this.prisma.coupons.findUnique({ where: { id: id }});
+      return await this.prisma.coupons.findUnique({ where: { id: id } });
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -48,10 +47,10 @@ export class CouponsService {
 
   async update(id: string, updateCouponDto: UpdateCouponDto) {
     try {
-      const coupon = await this.findOne(id)
-      
-      for (let e in updateCouponDto.userAlreadyUsed) {
-        coupon.userAlreadyUsed.push(updateCouponDto.userAlreadyUsed[e])
+      const coupon = await this.findOne(id);
+
+      for (const e in updateCouponDto.userAlreadyUsed) {
+        coupon.userAlreadyUsed.push(updateCouponDto.userAlreadyUsed[e]);
       }
 
       const updateCoupon = await this.prisma.coupons.update({
@@ -61,11 +60,11 @@ export class CouponsService {
           code: updateCouponDto.code,
           discount: updateCouponDto.discount,
           amount: updateCouponDto.amount,
-          userAlreadyUsed: coupon.userAlreadyUsed
+          userAlreadyUsed: coupon.userAlreadyUsed,
         },
       });
 
-      return { message: 'update success' , updateCoupon};
+      return { message: 'update success', updateCoupon };
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -73,13 +72,10 @@ export class CouponsService {
 
   async remove(id: string) {
     try {
-
       await this.prisma.coupons.delete({ where: { id } });
       return { message: 'Deleted successfully' };
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
     }
-    catch (error) {
-      throw new AllExceptionsFilter(error)
-    }
-
   }
 }

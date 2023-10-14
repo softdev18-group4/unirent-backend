@@ -8,18 +8,22 @@ datasource db {
 }
 
 model User {
-  id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  firstName  String
-  lastName   String
-  email      String       @unique
-  verified   Boolean?     @default(false)
-  password   String?
-  role       String       @default("user")
-  products   Product[]    @relation("userProducts")
-  reviews    Review[]     @relation("userReviews")
-  ResetToken ResetToken[] @relation("userResetToken")
-  orders     Order[]      @relation("userOrders")
-  coupons    Coupons[]    @relation("userCoupons")
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  firstName       String
+  lastName        String
+  email           String         @unique
+  verified        Boolean?       @default(false)
+  password        String?
+  role            String         @default("user")
+  products        Product[]      @relation("userProducts")
+  reviews         Review[]       @relation("userReviews")
+  ResetToken      ResetToken[]   @relation("userResetToken")
+  orders          Order[]        @relation("userOrders")
+  coupons         Coupons[]      @relation("userCoupons")
+  conversationIDs String[]       @db.ObjectId
+  conversation    Conversation[] @relation(fields: [conversationIDs], references: [id])
+  messages        Message[]      @relation("userMessages")
+  booking     Booking[]     @relation("userBooking")
 
   @@map("users")
 }
@@ -36,6 +40,7 @@ model Product {
   availability   Boolean
   availableDays  AvailableDays
   orders         Order[]        @relation("orderProduct")
+  booking        Booking[]         @relation("productBooking")
 
   @@map("products")
 }
@@ -46,7 +51,8 @@ model RentalOption {
   product   Product @relation("productRentalOptions", fields: [productId], references: [id])
   type      String
   priceRate Float
-  order     Order[]   @relation("rentalOrder")
+  order     Order[] @relation("rentalOrder")
+  booking   Booking[] @relation("rentalBooking")
 
   // @@unique([productId, type], name: "UniqueRentalTypePerProduct")
   @@map("rental_options")
@@ -96,6 +102,7 @@ model Order {
   user         User         @relation("userOrders", fields: [userId], references: [id])
   rentalId     String       @db.ObjectId
   rentalOption RentalOption @relation("rentalOrder", fields: [rentalId], references: [id])
+  amount       Float
   status       String
   rentTime     Int
 
@@ -112,4 +119,39 @@ model Coupons {
   user            User     @relation("userCoupons", fields: [userAlreadyUsed], references: [id])
 
   @@map("coupons")
+}
+
+model Conversation {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  participants String[]  @db.ObjectId
+  users        User[]    @relation(fields: [participants], references: [id])
+  messages     Message[] @relation("conversationMessage")
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation("conversationMessage", fields: [conversationId], references: [id])
+  senderId       String       @db.ObjectId
+  sender         User         @relation("userMessages", fields: [senderId], references: [id])
+  text           String
+  timestamp      DateTime     @default(now())
+
+  @@map("messages")
+}
+
+model Booking {
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  productId     String       @db.ObjectId @unique
+  product       Product      @relation("productBooking", fields: [productId], references: [id])
+  bookingUserId String       @db.ObjectId
+  user          User        @relation("userBooking", fields: [bookingUserId], references: [id])
+  rentalId      String       @db.ObjectId
+  rentalOption  RentalOption @relation("rentalBooking", fields: [rentalId], references: [id])
+  status        String
+  rentTime      Int
+
+  @@map("booking")
 }

@@ -219,19 +219,18 @@ export class ProductsService {
 
   async getProductsByUserId(user, page, perPage) {
     try {
-     
       const skip = (page - 1) * perPage;
       const userProduct = await this.prisma.product.findMany({
         where: { ownerId: user.id },
-        include:{
-          rentalOptions:true,
+        include: {
+          rentalOptions: true,
           reviews: true,
-          owner:{
-            select:{
-              firstName:true,
-              lastName:true
-            }
-          }
+          owner: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
         },
         skip: skip,
         take: +perPage,
@@ -262,6 +261,8 @@ export class ProductsService {
           'You do not have permission to update this product',
         );
       }
+
+      await this.prisma.booking.deleteMany({ where: { productId: id } });
       await this.prisma.rentalOption.deleteMany({ where: { productId: id } });
       await this.prisma.review.deleteMany({ where: { productId: id } });
       await this.prisma.product.delete({ where: { id } });
@@ -329,11 +330,20 @@ export class ProductsService {
     }
   }
 
-  async searchYourProduct(currentUser , keyword = '', searchBy = '', page = 1, perPage = 5){
+  async searchYourProduct(
+    currentUser,
+    keyword = '',
+    searchBy = '',
+    page = 1,
+    perPage = 5,
+  ) {
     try {
-      const allProducts = await this.getProductsByUserId(currentUser, page, perPage);
+      const allProducts = await this.getProductsByUserId(
+        currentUser,
+        page,
+        perPage,
+      );
       // Define the properties you want to search within
-      console.log(allProducts)
       let propertiesToSearch = [];
 
       if (searchBy === '') {
@@ -375,10 +385,15 @@ export class ProductsService {
         return false; // No match found for this product
       });
 
-      return filteredProducts;
+      const startIndex = (page - 1) * perPage;
+      const endIndex = startIndex + perPage;
+
+      // Slice the filtered products to return only the items for the current page
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+      return paginatedProducts;
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
-
   }
 }

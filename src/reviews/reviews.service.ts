@@ -36,10 +36,6 @@ export class ReviewsService {
     }
   }
 
-  findAll() {
-    return `This action returns all reviews`;
-  }
-
   async findOne(id: string) {
     const review = await this.prisma.review.findUnique({
       where: { id },

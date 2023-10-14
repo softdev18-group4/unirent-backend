@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { GoogleOauthGuard } from '@/common/guards/google-oauth.guard';
@@ -20,13 +28,17 @@ export class AuthController {
   ) {}
 
   @Post('sign-up')
-  async signup(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto);
+  async signup(@Body() signUpDto: SignUpDto, @Res() res) {
+    const token = await this.authService.signUp(signUpDto);
+    res.setHeader('Authorization', `${token}}`);
+    return res.status(201).json({ message: 'Sign up successfully' });
   }
 
   @Post('sign-in')
-  async signin(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto);
+  async signin(@Body() signInDto: SignInDto, @Res() res) {
+    const token = await this.authService.signIn(signInDto);
+    res.setHeader('Authorization', `${token}}`);
+    return res.status(200).json({ message: 'Sign in successfully' });
   }
 
   @Get('google')
