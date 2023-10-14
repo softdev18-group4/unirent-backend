@@ -16,6 +16,10 @@ import { BookingModule } from './booking/booking.module';
 import { PaymentController } from './payment/payment.controller';
 import { PaymentModule } from './payment/payment.module';
 import { PaymentService } from './payment/payment.service';
+import { ConnectedUserService } from './chat/connected-user/connected-user.service';
+import { JoinedConversationService } from './chat/joined-conversation/joined-conversation.service';
+import { JoinedConversationModule } from './chat/joined-conversation/joined-conversation.module';
+import { ConnectedUserModule } from './chat/connected-user/connected-user.module';
 
 @Module({
   imports: [
@@ -34,6 +38,8 @@ import { PaymentService } from './payment/payment.service';
     ConversationModule,
     BookingModule,
     PaymentModule,
+    JoinedConversationModule,
+    ConnectedUserModule,
   ],
   controllers: [AppController, PaymentController],
   providers: [AppService, PaymentService],

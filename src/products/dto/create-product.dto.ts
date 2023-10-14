@@ -10,8 +10,16 @@ export class CreateProductDto {
 
   @ApiProperty()
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   description: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  imageName: string[];
+
+  @ApiProperty()
+  @IsNotEmpty()
+  location: string;
 
   @ApiProperty()
   @IsNotEmpty()
