@@ -15,6 +15,7 @@ import { GetUser } from '@/common/decorators/get-users.decorator';
 import { JwtGuard } from '@/common/guards/jwt.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -56,15 +57,15 @@ export class ProductsController {
     return await this.productsService.getProductsByUserId(user, page, perPage);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
-  update(
+  async update(
     @Param('id') id: string,
-    @Body() UpdateProductDto,
-    @GetUser() currentUser,
+    @Body() updateProductDto: UpdateProductDto,
+    @GetUser() currentUser
   ) {
-    return this.productsService.update(id, UpdateProductDto, currentUser);
+    return await this.productsService.update(id, updateProductDto, currentUser);
   }
 
   @Delete(':id')

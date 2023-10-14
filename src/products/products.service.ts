@@ -4,8 +4,9 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
+import { CreateProductDto, Specification } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { error } from 'console';
@@ -25,7 +26,7 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto, currentUser) {
     try {
@@ -35,6 +36,8 @@ export class ProductsService {
         specifications,
         availableDays,
         rentalOptions,
+        imageName,
+        location
       } = createProductDto;
 
       // Validate availableDays dates
@@ -45,15 +48,21 @@ export class ProductsService {
         throw new BadRequestException('Start date must be before end date');
       }
 
+      // for (const e in createProductDto.imageName) {
+      //   createProductDto.imageName.push(createProductDto.imageName[e]);
+      // }
+
       const newProduct = await this.prisma.product.create({
         data: {
-          name,
-          description,
-          specifications,
+          name: name,
+          description: description,
+          imageName: imageName,
+          specifications: specifications,
           ownerId: currentUser.id as string,
+          location: location,
           availableDays: {
-            startDate,
-            endDate,
+            startDate: startDate,
+            endDate: endDate
           },
           availability: true,
           rentalOptions: {
@@ -139,81 +148,50 @@ export class ProductsService {
     }
   }
 
-  findOne(id: string) {
-    return this.prisma.product.findUnique({ where: { id } });
+  async findOne(id: string) {
+    return await this.prisma.product.findUnique({ where: { id } });
   }
 
   async update(id: string, updateProductDto: UpdateProductDto, currentUser) {
-    const { name, description, specifications, availableDays, rentalOptions } =
-      updateProductDto;
-
     try {
-      const existingProduct = await this.prisma.product.findUnique({
-        where: { id },
-        include: {
-          rentalOptions: true,
-        },
-      });
-
-      if (!existingProduct) {
-        throw new NotFoundException('Product not found');
+      const existProduct = await this.prisma.product.findUnique({ where: { id: id } })
+      if (existProduct.ownerId != currentUser.id) {
+        throw new UnauthorizedException('Unauthorized')
       }
+      console.log(updateProductDto)
 
-      if (existingProduct.ownerId !== currentUser.id) {
-        throw new BadRequestException(
-          'You do not have permission to update this product',
-        );
-      }
 
       const updatedProduct = await this.prisma.product.update({
-        where: { id },
-        data: {
-          name,
-          description,
-          specifications: {
-            ...specifications,
-          },
-          availableDays: {
-            update: {
-              startDate: new Date(availableDays.startDate),
-              endDate: new Date(availableDays.endDate),
-            },
-          },
-          availability: true,
+        where: {
+          id: id
         },
+        data: {
+          name: updateProductDto.name, // Replace with the updated name
+          description: updateProductDto.description, // Replace with the updated description
+          imageName: updateProductDto.imageName, // Replace with the updated image name
+          availability: updateProductDto.availability,
+          location: updateProductDto.location,
+          },
+          // specifications: {
+          //   update: {
+          //     brand: updateProductDto.specifications.brand,
+          //     graphicCard: updateProductDto.specifications.graphicCard,
+          //     model: updateProductDto.specifications.model,
+          //     processor: updateProductDto.specifications.processor,
+          //     ramSize: updateProductDto.specifications.ramSize,
+          //     storageSize: updateProductDto.specifications.storageSize
+          //   }
+          // availableDays:{
+          //   update:{
+          //     startDate:new Date(updateProductDto.availableDays.startDate),
+          //     endDate:new Date(updateProductDto.availableDays.endDate)
+          //   }
+          // }
       });
-
-      for (const rentalOption of rentalOptions) {
-        const existingRental = await existingProduct.rentalOptions.find(
-          (rental) => rental.type === rentalOption.type,
-        );
-        if (existingRental) {
-          if (rentalOption.isSelected) {
-            await this.prisma.rentalOption.update({
-              where: { id: existingRental.id },
-              data: {
-                priceRate: rentalOption.priceRate,
-              },
-            });
-          } else {
-            await this.prisma.rentalOption.delete({
-              where: { id: existingRental.id },
-            });
-          }
-        } else if (rentalOption.isSelected) {
-          await this.prisma.rentalOption.create({
-            data: {
-              productId: existingProduct.id,
-              type: rentalOption.type,
-              priceRate: rentalOption.priceRate,
-            },
-          });
-        }
-      }
 
       return updatedProduct;
     } catch (error) {
-      throw new BadRequestException('Failed to update product');
+      throw new Error(error)
     }
   }
 
