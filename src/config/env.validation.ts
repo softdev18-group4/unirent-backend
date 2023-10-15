@@ -52,7 +52,7 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
-  STRIPE_API_SECRET_KEY: string
+  STRIPE_API_SECRET_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {
