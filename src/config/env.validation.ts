@@ -29,6 +29,26 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsString()
   GOOGLE_CALLBACK_URL: string;
+
+  @IsNotEmpty()
+  @IsString()
+  MINIO_ACCESS_KEY: string;
+
+  @IsNotEmpty()
+  @IsString()
+  MINIO_SECRET_KEY: string;
+
+  @IsNotEmpty()
+  @IsString()
+  MINIO_ENDPOINT: string;
+
+  @IsNotEmpty()
+  @IsString()
+  MINIO_BUCKET: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  MINIO_PORT: number;
 }
 
 export function validate(config: Record<string, unknown>) {

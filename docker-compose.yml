@@ -14,6 +14,13 @@ services:
       - GOOGLE_CLIENT_ID
       - GOOGLE_CLIENT_SECRET
       - GOOGLE_CALLBACK_URL
+      - MINIO_ACCESS_KEY
+      - MINIO_SECRET_KEY
+      - MINIO_ENDPOINT
+      - MINIO_BUCKET
+      - MINIO_PORT
+      - STRIPE_API_SECRET_KEY
+
     ports:
       - '${APP_PORT}:${APP_PORT}'
     restart: always
