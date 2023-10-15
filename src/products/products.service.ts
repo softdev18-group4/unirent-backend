@@ -182,6 +182,7 @@ export class ProductsService {
                 brand: updateProductDto.specifications.brand,
                 graphicCard: updateProductDto.specifications.graphicCard,
                 model: updateProductDto.specifications.model,
+                os: updateProductDto.specifications.os,
                 processor: updateProductDto.specifications.processor,
                 ramSize: updateProductDto.specifications.ramSize,
                 storageSize: updateProductDto.specifications.storageSize,
