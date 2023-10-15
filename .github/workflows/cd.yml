@@ -1,11 +1,10 @@
 name: Deploy to Self-Hosted
 
 on:
-  workflow_run:
-    workflows: [Build and Test]
-    branches: ['main']
-    types:
-      - completed
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 env:
   APP_PORT: ${{ secrets.APP_PORT }}
