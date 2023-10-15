@@ -114,7 +114,6 @@ export class AuthService {
   }
 
   async OAuthWithGoogle(user) {
-    console.log(user);
     const userExisting = await this.userService.findOneAndCreateIfNotExist(
       {
         email: user.email,
@@ -129,12 +128,10 @@ export class AuthService {
       },
     );
 
-    return {
-      access_token: this.generateToken({
-        userId: userExisting.id,
-        role: userExisting.role,
-      }),
-    };
+    return this.generateToken({
+      userId: userExisting.id,
+      role: userExisting.role,
+    });
   }
 
   async createResetToken(email: string): Promise<ResetToken> {
