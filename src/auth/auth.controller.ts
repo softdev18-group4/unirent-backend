@@ -41,14 +41,12 @@ export class AuthController {
     return res.status(200).json({ message: 'Sign in successfully' });
   }
 
-  @Get('google')
+  @Post('google')
   @UseGuards(GoogleOauthGuard)
-  async auth() {}
-
-  @Get('callback/google')
-  @UseGuards(GoogleOauthGuard)
-  async googleAuthCallback(@Req() req) {
-    return await this.authService.OAuthWithGoogle(req.user);
+  async googleOAuth(@Req() req, @Res() res) {
+    const token = await this.authService.OAuthWithGoogle(req.user);
+    res.setHeader('Authorization', `${token}`);
+    return res.status(200).json({ message: 'Sign in successfully' });
   }
 
   @ApiBearerAuth('JWT-auth')
