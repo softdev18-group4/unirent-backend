@@ -64,7 +64,7 @@ export class ProductsController {
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-    @GetUser() currentUser
+    @GetUser() currentUser,
   ) {
     return await this.productsService.update(id, updateProductDto, currentUser);
   }
