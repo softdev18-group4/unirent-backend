@@ -89,6 +89,7 @@ type Specifications {
   model       String
   processor   String
   graphicCard String
+  os          String
   ramSize     Int
   storageSize Int
 }
