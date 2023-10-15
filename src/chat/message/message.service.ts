@@ -32,10 +32,10 @@ export class MessageService {
       where: {
         conversationId,
       },
-      // include: {
-      //   conversation: true,
-      //   sender: true,
-      // },
+      include: {
+        conversation: true,
+        sender: true,
+      },
       orderBy: {
         timestamp: 'desc',
       },
