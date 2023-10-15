@@ -15,8 +15,6 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 
 import { UsersService } from '@/users/users.service';
-import { verify } from 'jsonwebtoken';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +22,6 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
   ) {}
 
   private generateToken({
@@ -174,9 +171,5 @@ export class AuthService {
 
       return resetToken;
     }
-  }
-
-  verifyToken(token: string) {
-    return verify(token, this.configService.get<string>('JWT_SECRET'));
   }
 }

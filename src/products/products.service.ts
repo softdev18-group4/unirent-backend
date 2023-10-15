@@ -26,7 +26,7 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto, currentUser) {
     try {
@@ -160,37 +160,55 @@ export class ProductsService {
       if (existProduct.ownerId != currentUser.id) {
         throw new UnauthorizedException('Unauthorized');
       }
-      console.log(updateProductDto);
 
-      const updatedProduct = await this.prisma.product.update({
+      const updateProduct = await this.prisma.product.update({
         where: {
           id: id,
         },
         data: {
-          name: updateProductDto.name, // Replace with the updated name
-          description: updateProductDto.description, // Replace with the updated description
-          imageName: updateProductDto.imageName, // Replace with the updated image name
+          name: updateProductDto.name, 
+          description: updateProductDto.description, 
+          imageName: updateProductDto.imageName, 
           availability: updateProductDto.availability,
           location: updateProductDto.location,
-        },
-        // specifications: {
-        //   update: {
-        //     brand: updateProductDto.specifications.brand,
-        //     graphicCard: updateProductDto.specifications.graphicCard,
-        //     model: updateProductDto.specifications.model,
-        //     processor: updateProductDto.specifications.processor,
-        //     ramSize: updateProductDto.specifications.ramSize,
-        //     storageSize: updateProductDto.specifications.storageSize
-        //   }
-        // availableDays:{
-        //   update:{
-        //     startDate:new Date(updateProductDto.availableDays.startDate),
-        //     endDate:new Date(updateProductDto.availableDays.endDate)
-        //   }
-        // }
-      });
 
-      return updatedProduct;
+        }
+      });
+      if (updateProductDto.specifications) {
+        const updateSpec = await this.prisma.product.update({
+          where: { id: id },
+          data: {
+            specifications: {
+              update: {
+                brand: updateProductDto.specifications.brand,
+                graphicCard: updateProductDto.specifications.graphicCard,
+                model: updateProductDto.specifications.model,
+                processor: updateProductDto.specifications.processor,
+                ramSize: updateProductDto.specifications.ramSize,
+                storageSize: updateProductDto.specifications.storageSize
+              }
+              
+            }
+          }
+        })
+      }
+
+      if(updateProductDto.availableDays){
+        
+        const updateDays = await this.prisma.product.update({
+          where:{id:id},
+          data:{
+            availableDays:{
+                update:{
+                  startDate:new Date(updateProductDto.availableDays.startDate),
+                  endDate:new Date(updateProductDto.availableDays.endDate)
+                }
+              }
+          }
+        })
+      }
+
+      return {messeage:"update success"};
     } catch (error) {
       throw new Error(error);
     }
