@@ -26,7 +26,7 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto, currentUser) {
     try {
@@ -166,13 +166,12 @@ export class ProductsService {
           id: id,
         },
         data: {
-          name: updateProductDto.name, 
-          description: updateProductDto.description, 
-          imageName: updateProductDto.imageName, 
+          name: updateProductDto.name,
+          description: updateProductDto.description,
+          imageName: updateProductDto.imageName,
           availability: updateProductDto.availability,
           location: updateProductDto.location,
-
-        }
+        },
       });
       if (updateProductDto.specifications) {
         const updateSpec = await this.prisma.product.update({
@@ -185,30 +184,28 @@ export class ProductsService {
                 model: updateProductDto.specifications.model,
                 processor: updateProductDto.specifications.processor,
                 ramSize: updateProductDto.specifications.ramSize,
-                storageSize: updateProductDto.specifications.storageSize
-              }
-              
-            }
-          }
-        })
+                storageSize: updateProductDto.specifications.storageSize,
+              },
+            },
+          },
+        });
       }
 
-      if(updateProductDto.availableDays){
-        
+      if (updateProductDto.availableDays) {
         const updateDays = await this.prisma.product.update({
-          where:{id:id},
-          data:{
-            availableDays:{
-                update:{
-                  startDate:new Date(updateProductDto.availableDays.startDate),
-                  endDate:new Date(updateProductDto.availableDays.endDate)
-                }
-              }
-          }
-        })
+          where: { id: id },
+          data: {
+            availableDays: {
+              update: {
+                startDate: new Date(updateProductDto.availableDays.startDate),
+                endDate: new Date(updateProductDto.availableDays.endDate),
+              },
+            },
+          },
+        });
       }
 
-      return {messeage:"update success"};
+      return { messeage: 'update success' };
     } catch (error) {
       throw new Error(error);
     }
