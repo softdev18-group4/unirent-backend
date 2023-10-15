@@ -63,6 +63,11 @@ export class Specification {
   graphicCard?: string;
 
   @ApiProperty()
+  @IsString()
+  @IsOptional()
+  os?: string;
+
+  @ApiProperty()
   @IsInt()
   @IsOptional()
   ramSize?: number;
