@@ -37,10 +37,7 @@ export class ConversationService {
       },
     });
     if (existingConversation) {
-      throw new BadRequestException({
-        name: 'Conversation already exists',
-        conversationId: existingConversation.id,
-      });
+      return existingConversation;
     }
 
     return await this.prisma.conversation.create({
