@@ -47,6 +47,8 @@ export class ProductsController {
     return this.productsService.findById(id);
   }
 
+ 
+
   @Get('/yourProduct/byUser')
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
@@ -56,6 +58,15 @@ export class ProductsController {
     @Query('perPage') perPage: number,
   ) {
     return await this.productsService.getProductsByUserId(user, page, perPage);
+  }
+
+  @Get('/userProduct/:id')
+  async getProductsOtherUserId(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+  ) {
+    return await this.productsService.getProductsByOtherUserId(id,page, perPage);
   }
 
   @Put(':id')
