@@ -26,7 +26,7 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto, currentUser) {
     try {
@@ -153,8 +153,15 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto, currentUser) {
-    const { name, description,imageName, location, specifications, availableDays, rentalOptions } =
-      updateProductDto;
+    const {
+      name,
+      description,
+      imageName,
+      location,
+      specifications,
+      availableDays,
+      rentalOptions,
+    } = updateProductDto;
 
     try {
       const existingProduct = await this.prisma.product.findUnique({
@@ -163,7 +170,7 @@ export class ProductsService {
           rentalOptions: true,
         },
       });
-      
+
       if (!existingProduct) {
         throw new NotFoundException('Product not found');
       }
@@ -173,7 +180,7 @@ export class ProductsService {
           'You do not have permission to update this product',
         );
       }
-      
+
       const updatedProduct = await this.prisma.product.update({
         where: { id },
         data: {
@@ -191,14 +198,14 @@ export class ProductsService {
           availability: true,
         },
       });
-      
+
       // console.log(existingProduct)
 
       for (const rentalOption of rentalOptions) {
         const existingRental = await existingProduct.rentalOptions.find(
           (rental) => rental.type === rentalOption.type,
         );
-        console.log(existingRental)
+        console.log(existingRental);
         if (existingRental) {
           if (rentalOption.isSelected) {
             await this.prisma.rentalOption.update({
@@ -241,6 +248,32 @@ export class ProductsService {
             select: {
               firstName: true,
               lastName: true,
+            },
+          },
+        },
+        skip: skip,
+        take: +perPage,
+      });
+
+      return userProduct; // Array of products associated with the user
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
+
+  async getProductsByOtherUserId(id, page, perPage) {
+    try {
+      const skip = (page - 1) * perPage;
+      const userProduct = await this.prisma.product.findMany({
+        where: { ownerId: id },
+        include: {
+          rentalOptions: true,
+          reviews: true,
+          owner: {
+            select: {
+              firstName: true,
+              lastName: true,
+              profileImage:true,
             },
           },
         },

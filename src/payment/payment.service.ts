@@ -39,4 +39,5 @@ export class PaymentService {
       payment_method_types: ['card'],
     });
   }
+
 }
