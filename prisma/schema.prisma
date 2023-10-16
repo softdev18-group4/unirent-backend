@@ -11,6 +11,7 @@ model User {
   id              String         @id @default(auto()) @map("_id") @db.ObjectId
   firstName       String
   lastName        String
+  profileImage    String         @default("https://storage-unirent.1tpp.dev/unirent/default-profile.svg")
   email           String         @unique
   verified        Boolean?       @default(false)
   password        String?
