@@ -30,24 +30,22 @@ export class ProductsController {
     return this.productsService.create(createProductDto, currentUser);
   }
 
-  findAll() {
-    return this.productsService.findAll();
-  }
-
-  // @Get()
-  // async getProductsPagination(
-  //   @Query('page') page: number,
-  //   @Query('perPage') perPage: number,
-  // ) {
-  //   return await this.productsService.findByPagination(page, perPage);
+  // findAll() {
+  //   return this.productsService.findAll();
   // }
+
+  @Get()
+  async getProductsPagination(
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+  ) {
+    return await this.productsService.findByPagination(page, perPage);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findById(id);
   }
-
- 
 
   @Get('/yourProduct/byUser')
   @UseGuards(JwtGuard)

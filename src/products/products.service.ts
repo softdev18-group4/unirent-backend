@@ -138,11 +138,22 @@ export class ProductsService {
   async findByPagination(page: number = 1, perPage: number = 5) {
     try {
       const skip = (page - 1) * perPage;
-      const query = await this.prisma.product.findMany({
-        skip: skip,
-        take: +perPage,
-      });
-      return query;
+      const [query, totalCount] = await Promise.all([
+        this.prisma.product.findMany({
+          skip: skip,
+          take: +perPage,
+        }),
+        this.prisma.product.count(),
+      ]);
+  
+      const totalPages = Math.ceil(totalCount / perPage);
+  
+      return {
+        data: query,
+        currentPage: page,
+        totalPages,
+      };
+
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -239,23 +250,34 @@ export class ProductsService {
   async getProductsByUserId(user, page, perPage) {
     try {
       const skip = (page - 1) * perPage;
-      const userProduct = await this.prisma.product.findMany({
-        where: { ownerId: user.id },
-        include: {
-          rentalOptions: true,
-          reviews: true,
-          owner: {
-            select: {
-              firstName: true,
-              lastName: true,
+      const [userProducts, totalProducts] = await Promise.all([
+        this.prisma.product.findMany({
+          where: { ownerId: user.id },
+          include: {
+            rentalOptions: true,
+            reviews: true,
+            owner: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
             },
           },
-        },
-        skip: skip,
-        take: +perPage,
-      });
-
-      return userProduct; // Array of products associated with the user
+          skip: skip,
+          take: +perPage,
+        }),
+        this.prisma.product.count({
+          where: { ownerId: user.id },
+        }),
+      ]);
+  
+      const totalPages = Math.ceil(totalProducts / perPage);
+  
+      return {
+        userProducts, // Array of products associated with the user
+        currentPage: page,
+        totalPages,
+      };
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -414,7 +436,7 @@ export class ProductsService {
       }
 
       // Filter products based on the search criteria
-      const filteredProducts = (await allProducts).filter((product) => {
+      const filteredProducts = (await allProducts.userProducts).filter((product) => {
         for (const property of propertiesToSearch) {
           const propertyValue = getProperty(product, property);
           if (
