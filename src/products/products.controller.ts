@@ -58,7 +58,7 @@ export class ProductsController {
     return await this.productsService.getProductsByUserId(user, page, perPage);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
   async update(
