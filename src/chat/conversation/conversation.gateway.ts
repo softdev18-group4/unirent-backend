@@ -11,13 +11,10 @@ import {
 import { Server, Socket } from 'socket.io';
 import { AuthService } from '@/auth/auth.service';
 import { SocketAuthMiddleware } from '@/common/middlewares/ws-auth.middleware';
-import { OnModuleInit, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { WsJwtAuthGuard } from '@/common/guards/ws-jwt.guard';
 import { ConversationService } from './conversation.service';
 import { CreateMessageDto } from '../dto/create-message.dto';
-import { ConnectedUserService } from '../connected-user/connected-user.service';
-import { JoinedConversationService } from '../joined-conversation/joined-conversation.service';
-import { CreateConversationDto } from '../dto/create-conversation.dto';
 import { MessageService } from '../message/message.service';
 import { ConversationDto } from '../dto/conversation.dto';
 import { MessageSeenDto } from '../dto/message-seen.dto';
@@ -32,8 +29,7 @@ export class ConversationGateway
   implements
     OnGatewayConnection,
     OnGatewayDisconnect,
-    OnGatewayInit,
-    OnModuleInit
+    OnGatewayInit
 {
   @WebSocketServer()
   server: Server;
@@ -42,19 +38,12 @@ export class ConversationGateway
     private userService: UsersService,
     private authService: AuthService,
     private conversationService: ConversationService,
-    private connectedUserService: ConnectedUserService,
-    private joindConversationService: JoinedConversationService,
     private messageService: MessageService,
   ) {}
 
   afterInit(client: Socket) {
     client.use(SocketAuthMiddleware(this.authService) as any);
     console.log('Init!');
-  }
-
-  async onModuleInit() {
-    await this.connectedUserService.deleteAll();
-    await this.joindConversationService.deleteAll();
   }
 
   async handleConnection(client: Socket) {
@@ -66,23 +55,15 @@ export class ConversationGateway
       console.log('Invalid User.');
       return client.disconnect();
     }
+    
     client.data.user = user;
-    const conversations = await this.conversationService.getConversationByUser(
-      user,
-      1,
-      10,
-    );
-
-    // Save connection to db
-    await this.connectedUserService.create(client.id, user);
+    const conversations = await this.conversationService.getConversationByUser(user, 1, 10);
 
     // Only emit conversation to the specific connected client
     return this.server.to(client.id).emit('conversations', conversations);
   }
 
   async handleDisconnect(client: Socket) {
-    // remove connection from db
-    await this.connectedUserService.deleteBySocketId(client.id);
     client.disconnect();
     console.log(`Client disconnected: ${client.id}`);
   }
@@ -102,59 +83,17 @@ export class ConversationGateway
     return this.server.to(clinet.id).emit('conversations', conversations);
   }
 
-  // sendMessage(createMessageDto: CreateMessageDto) {
-  //   this.server.emit('newMessage', createMessageDto);
-  // }
-
-  @SubscribeMessage('createConversation')
-  async handleCreateConversation(
-    client: Socket,
-    payload: CreateConversationDto,
-  ) {
-    const createdConversation =
-      await this.conversationService.createConversation(
-        payload,
-        client.data.user,
-      );
-    if (!createdConversation) {
-      const conversations =
-        await this.conversationService.getConversationByUser(
-          client.data.user,
-          1,
-          10,
-        );
-      await this.server.to(client.id).emit('conversation', conversations);
-      return this.server
-        .to(client.id)
-        .emit('error', 'Conversation already exist.');
-    }
-
-    for (const userId of createdConversation.participants) {
-      const connections = await this.connectedUserService.findByUser(userId);
-      const user = await this.userService.findById(userId);
-      const conversations =
-        await this.conversationService.getConversationByUser(user, 1, 10);
-      for (const connection of connections) {
-        await this.server
-          .to(connection.socketId)
-          .emit('conversation', conversations);
-      }
-    }
-  }
-
   @SubscribeMessage('joinConversation')
   async handleJoinConversation(client: Socket, payload: ConversationDto) {
     try {
+      client.join(payload.conversationId);
+      console.log(`${client.id} join conversation ${payload.conversationId}`);
+
       const messages = await this.messageService.getMessagesByConversation(
         payload.conversationId,
       );
-
-      // Save Connection to Room
-      await this.joindConversationService.create(
-        { socketId: client.id, conversationId: payload.conversationId },
-        client.data.user,
-      );
-      // Send last messages from Conversation to User
+      
+      // Send messages in Conversation to User that joined 
       await this.server.to(client.id).emit('messages', messages);
     } catch (error) {
       throw new WsException(error?.message);
@@ -162,27 +101,22 @@ export class ConversationGateway
   }
 
   @SubscribeMessage('leaveConversation')
-  async onLeaveConversation(client: Socket) {
-    // Remove Connection from Joined Conversation
-    await this.joindConversationService.deleteBySocketId(client.id);
+  async handleLeaveConversation(client: Socket, payload: ConversationDto) {
+    client.leave(payload.conversationId)
+    console.log(`${client.id} leave conversation ${payload.conversationId}`);
   }
 
-  @SubscribeMessage('newMessage')
+  @SubscribeMessage('messageToServer')
   async handleNewMessage(client: Socket, payload: CreateMessageDto) {
     try {
       const createdMessage = await this.messageService.createMessage(
         client.data.user,
         payload,
       );
-      const conversation = await this.conversationService.getConversation(
-        createdMessage.conversationId,
-      );
-      const joinedUsers =
-        await this.joindConversationService.findByConversation(conversation.id);
+      
       // Send new Message to all joined Users of the conversation (currently online)
-      for (const user of joinedUsers) {
-        await this.server.to(user.socketId).emit('newMessage', createdMessage);
-      }
+      await this.server.to(payload.conversationId).emit('messageToClient', createdMessage);
+
     } catch (error) {
       throw new WsException(error?.message);
     }

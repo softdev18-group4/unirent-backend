@@ -6,16 +6,12 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { UsersModule } from '@/users/users.module';
 import { AuthModule } from '@/auth/auth.module';
 import { MessageModule } from '../message/message.module';
-import { JoinedConversationModule } from '../joined-conversation/joined-conversation.module';
-import { ConnectedUserModule } from '../connected-user/connected-user.module';
 
 @Module({
   imports: [
     UsersModule,
     AuthModule,
-    MessageModule,
-    JoinedConversationModule,
-    ConnectedUserModule,
+    MessageModule
   ],
   providers: [ConversationService, ConversationGateway, PrismaService],
   controllers: [ConversationController],
