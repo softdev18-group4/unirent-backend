@@ -1,11 +1,10 @@
 name: Deploy to Self-Hosted
 
 on:
-  workflow_run:
-    workflows: [Build and Test]
-    branches: ['main']
-    types:
-      - completed
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 env:
   APP_PORT: ${{ secrets.APP_PORT }}
@@ -20,6 +19,7 @@ env:
   MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
   MINIO_BUCKET: ${{ secrets.MINIO_BUCKET }}
   MINIO_PORT: ${{ secrets.MINIO_PORT }}
+  STRIPE_API_SECRET_KEY: ${{ secrets.STRIPE_API_SECRET_KEY }}
 
 jobs:
   deploy:

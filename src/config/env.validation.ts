@@ -49,6 +49,10 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsNumber()
   MINIO_PORT: number;
+
+  @IsNotEmpty()
+  @IsString()
+  STRIPE_API_SECRET_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {
