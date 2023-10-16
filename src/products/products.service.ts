@@ -26,7 +26,7 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto, currentUser) {
     try {
@@ -153,62 +153,79 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto, currentUser) {
+    const { name, description,imageName, location, specifications, availableDays, rentalOptions } =
+      updateProductDto;
+
     try {
-      const existProduct = await this.prisma.product.findUnique({
+      const existingProduct = await this.prisma.product.findUnique({
         where: { id: id },
+        include: {
+          rentalOptions: true,
+        },
       });
-      if (existProduct.ownerId != currentUser.id) {
-        throw new UnauthorizedException('Unauthorized');
+      
+      if (!existingProduct) {
+        throw new NotFoundException('Product not found');
       }
 
-      const updateProduct = await this.prisma.product.update({
-        where: {
-          id: id,
-        },
+      if (existingProduct.ownerId !== currentUser.id) {
+        throw new BadRequestException(
+          'You do not have permission to update this product',
+        );
+      }
+      
+      const updatedProduct = await this.prisma.product.update({
+        where: { id },
         data: {
-          name: updateProductDto.name,
-          description: updateProductDto.description,
-          imageName: updateProductDto.imageName,
-          availability: updateProductDto.availability,
-          location: updateProductDto.location,
+          name,
+          description,
+          imageName,
+          location,
+          specifications: specifications,
+          availableDays: {
+            update: {
+              startDate: new Date(availableDays.startDate),
+              endDate: new Date(availableDays.endDate),
+            },
+          },
+          availability: true,
         },
       });
-      if (updateProductDto.specifications) {
-        const updateSpec = await this.prisma.product.update({
-          where: { id: id },
-          data: {
-            specifications: {
-              update: {
-                brand: updateProductDto.specifications.brand,
-                graphicCard: updateProductDto.specifications.graphicCard,
-                model: updateProductDto.specifications.model,
-                os: updateProductDto.specifications.os,
-                processor: updateProductDto.specifications.processor,
-                ramSize: updateProductDto.specifications.ramSize,
-                storageSize: updateProductDto.specifications.storageSize,
+      
+      // console.log(existingProduct)
+
+      for (const rentalOption of rentalOptions) {
+        const existingRental = await existingProduct.rentalOptions.find(
+          (rental) => rental.type === rentalOption.type,
+        );
+        console.log(existingRental)
+        if (existingRental) {
+          if (rentalOption.isSelected) {
+            await this.prisma.rentalOption.update({
+              where: { id: existingRental.id },
+              data: {
+                priceRate: rentalOption.priceRate,
               },
+            });
+          } else {
+            await this.prisma.rentalOption.delete({
+              where: { id: existingRental.id },
+            });
+          }
+        } else if (rentalOption.isSelected) {
+          await this.prisma.rentalOption.create({
+            data: {
+              productId: existingProduct.id,
+              type: rentalOption.type,
+              priceRate: rentalOption.priceRate,
             },
-          },
-        });
+          });
+        }
       }
 
-      if (updateProductDto.availableDays) {
-        const updateDays = await this.prisma.product.update({
-          where: { id: id },
-          data: {
-            availableDays: {
-              update: {
-                startDate: new Date(updateProductDto.availableDays.startDate),
-                endDate: new Date(updateProductDto.availableDays.endDate),
-              },
-            },
-          },
-        });
-      }
-
-      return { messeage: 'update success' };
+      return updatedProduct;
     } catch (error) {
-      throw new Error(error);
+      throw new BadRequestException('Failed to update product');
     }
   }
 
