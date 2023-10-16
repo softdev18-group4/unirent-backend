@@ -52,6 +52,10 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  MINIO_API_ENDPOINT: string;
+
+  @IsNotEmpty()
+  @IsString()
   STRIPE_API_SECRET_KEY: string;
 }
 
