@@ -18,7 +18,7 @@ export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
   rentalId: string;
-
+ 
   @ApiProperty()
   @IsInt()
   @IsNotEmpty()
