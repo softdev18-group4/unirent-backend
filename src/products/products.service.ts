@@ -142,6 +142,16 @@ export class ProductsService {
         this.prisma.product.findMany({
           skip: skip,
           take: +perPage,
+          include: {
+            rentalOptions: true,
+            reviews: true,
+            owner: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          }
         }),
         this.prisma.product.count(),
       ]);
