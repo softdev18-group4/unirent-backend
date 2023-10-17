@@ -28,9 +28,10 @@ export class OrdersService {
   constructor(private prisma: PrismaService) { }
   async create(createOrderDto: CreateOrderDto, currentUser, productId) {
     try {
-      if (!currentUser) {
-        throw new UnauthorizedException('Unauthorized');
-      }
+      // if (!currentUser) {
+      //   throw new UnauthorizedException('Unauthorized');
+      // }
+    
       const product = await this.prisma.product.findUnique({
         where: { id: productId },
       });
