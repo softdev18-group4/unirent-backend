@@ -14,6 +14,7 @@ export const SocketAuthMiddleware = (
       authService.verifyToken(token);
       next();
     } catch (error) {
+      console.log('Verify Token failed.');
       next(error);
     }
   };
