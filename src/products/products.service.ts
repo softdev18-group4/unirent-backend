@@ -260,34 +260,23 @@ export class ProductsService {
   async getProductsByUserId(user, page, perPage) {
     try {
       const skip = (page - 1) * perPage;
-      const [userProducts, totalProducts] = await Promise.all([
-        this.prisma.product.findMany({
-          where: { ownerId: user.id },
-          include: {
-            rentalOptions: true,
-            reviews: true,
-            owner: {
-              select: {
-                firstName: true,
-                lastName: true,
-              },
+      const userProduct = await this.prisma.product.findMany({
+        where: { ownerId: user.id },
+        include: {
+          rentalOptions: true,
+          reviews: true,
+          owner: {
+            select: {
+              firstName: true,
+              lastName: true,
             },
           },
-          skip: skip,
-          take: +perPage,
-        }),
-        this.prisma.product.count({
-          where: { ownerId: user.id },
-        }),
-      ]);
-  
-      const totalPages = Math.ceil(totalProducts / perPage);
-  
-      return {
-        userProducts, // Array of products associated with the user
-        currentPage: page,
-        totalPages,
-      };
+        },
+        skip: skip,
+        take: +perPage,
+      });
+
+      return userProduct; // Array of products associated with the user
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -446,7 +435,7 @@ export class ProductsService {
       }
 
       // Filter products based on the search criteria
-      const filteredProducts = (await allProducts.userProducts).filter((product) => {
+      const filteredProducts = (await allProducts).filter((product) => {
         for (const property of propertiesToSearch) {
           const propertyValue = getProperty(product, property);
           if (
