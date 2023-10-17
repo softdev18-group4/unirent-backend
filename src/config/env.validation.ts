@@ -57,6 +57,10 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsString()
   STRIPE_API_SECRET_KEY: string;
+
+  @IsNotEmpty()
+  @IsString()
+  STRIPE_WEBHOOK_SECRET: string;
 }
 
 export function validate(config: Record<string, unknown>) {
