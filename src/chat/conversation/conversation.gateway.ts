@@ -26,10 +26,7 @@ import { MessageSeenDto } from '../dto/message-seen.dto';
 })
 @UseGuards(WsJwtAuthGuard)
 export class ConversationGateway
-  implements
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-    OnGatewayInit
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
   @WebSocketServer()
   server: Server;
@@ -55,9 +52,13 @@ export class ConversationGateway
       console.log('Invalid User.');
       return client.disconnect();
     }
-    
+
     client.data.user = user;
-    const conversations = await this.conversationService.getConversationByUser(user, 1, 10);
+    const conversations = await this.conversationService.getConversationByUser(
+      user,
+      1,
+      10,
+    );
 
     // Only emit conversation to the specific connected client
     return this.server.to(client.id).emit('conversations', conversations);
@@ -92,8 +93,8 @@ export class ConversationGateway
       const messages = await this.messageService.getMessagesByConversation(
         payload.conversationId,
       );
-      
-      // Send messages in Conversation to User that joined 
+
+      // Send messages in Conversation to User that joined
       await this.server.to(client.id).emit('messages', messages);
     } catch (error) {
       throw new WsException(error?.message);
@@ -102,7 +103,7 @@ export class ConversationGateway
 
   @SubscribeMessage('leaveConversation')
   async handleLeaveConversation(client: Socket, payload: ConversationDto) {
-    client.leave(payload.conversationId)
+    client.leave(payload.conversationId);
     console.log(`${client.id} leave conversation ${payload.conversationId}`);
   }
 
@@ -113,10 +114,11 @@ export class ConversationGateway
         client.data.user,
         payload,
       );
-      
-      // Send new Message to all joined Users of the conversation (currently online)
-      await this.server.to(payload.conversationId).emit('messageToClient', createdMessage);
 
+      // Send new Message to all joined Users of the conversation (currently online)
+      await this.server
+        .to(payload.conversationId)
+        .emit('messageToClient', createdMessage);
     } catch (error) {
       throw new WsException(error?.message);
     }
