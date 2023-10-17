@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Prisma } from '@prisma/client';
@@ -41,5 +41,10 @@ export class UsersController {
   @Get('byEmail')
   async findByEmail(@Query('email') email: string) {
     return await this.usersService.findByEmail(email);
+  }
+
+  @Get(':id')
+  async findById(@Param('id') id: string) {
+    return await this.usersService.findById(id);
   }
 }
