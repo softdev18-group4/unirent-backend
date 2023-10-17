@@ -21,6 +21,7 @@ services:
       - MINIO_PORT
       - MINIO_API_ENDPOINT
       - STRIPE_API_SECRET_KEY
+      - STRIPE_WEBHOOK_SECRET
 
     ports:
       - '${APP_PORT}:${APP_PORT}'
