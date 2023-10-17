@@ -18,11 +18,6 @@ export class CreateBookingDto {
   rentalId: string;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  status: string;
-
-  @ApiProperty()
   @IsInt()
   @IsNotEmpty()
   rentTime: number;

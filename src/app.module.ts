@@ -16,6 +16,7 @@ import { BookingModule } from './booking/booking.module';
 import { PaymentController } from './payment/payment.controller';
 import { PaymentModule } from './payment/payment.module';
 import { PaymentService } from './payment/payment.service';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PaymentService } from './payment/payment.service';
     ConversationModule,
     BookingModule,
     PaymentModule,
+    WebhookModule,
   ],
   controllers: [AppController, PaymentController],
   providers: [AppService, PaymentService],

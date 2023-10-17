@@ -35,4 +35,13 @@ export class PaymentController {
         response.status(HttpStatus.BAD_REQUEST).json({ message: err });
       });
   }
+
+  // @Post('/customer/create')
+  // @ApiBearerAuth('JWT-auth')
+  // @UseGuards(JwtGuard)
+  // createCustomer(
+  //   @GetUser() currentUser,
+  // ) {
+  //   return this.paymentService.createCustomer(currentUser)
+  // }
 }

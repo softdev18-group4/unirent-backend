@@ -25,7 +25,7 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(createOrderDto: CreateOrderDto, currentUser, productId) {
     try {
       if (!currentUser) {
@@ -72,7 +72,6 @@ export class OrdersService {
             productId: productId,
             userId: currentUser.id,
             rentalId: createOrderDto.rentalId,
-            status: createOrderDto.status,
             rentTime: createOrderDto.rentTime,
             amount: rentOption.priceRate,
           },
@@ -90,7 +89,6 @@ export class OrdersService {
             productId: productId,
             bookingUserId: currentUser.id,
             rentalId: createOrderDto.rentalId,
-            status: createOrderDto.status,
             rentTime: createOrderDto.rentTime,
           },
         });
@@ -162,6 +160,7 @@ export class OrdersService {
           status: updateOrderDto.status,
           rentTime: updateOrderDto.rentTime,
           amount: updateOrderDto.amount,
+          transactionId: updateOrderDto.transactionId
         },
       });
 
@@ -203,6 +202,12 @@ export class OrdersService {
       await this.prisma.booking.deleteMany({
         where: { productId: existingOrder.productId },
       });
+      await this.prisma.product.update({ 
+        where: { id: existingOrder.productId },
+        data:{
+          availability:true
+        }
+      })
       await this.prisma.order.delete({ where: { id } });
 
       return { message: 'Deleted successfully' };
