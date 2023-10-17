@@ -21,6 +21,7 @@ env:
   MINIO_PORT: ${{ secrets.MINIO_PORT }}
   MINIO_API_ENDPOINT: ${{ secrets.MINIO_API_ENDPOINT }}
   STRIPE_API_SECRET_KEY: ${{ secrets.STRIPE_API_SECRET_KEY }}
+  STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
 jobs:
   deploy:
