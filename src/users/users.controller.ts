@@ -1,8 +1,20 @@
-import { Controller, Get, Post, Body, Query, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  Put,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma } from '@prisma/client';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtGuard } from '@/common/guards/jwt.guard';
+import { GetUser } from '@/common/decorators/get-users.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -46,5 +58,16 @@ export class UsersController {
   @Get(':id')
   async findById(@Param('id') id: string) {
     return await this.usersService.findById(id);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth('JWT-auth')
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @GetUser() currentUser,
+  ) {
+    return this.usersService.update(id, updateUserDto, currentUser);
   }
 }

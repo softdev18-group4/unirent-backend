@@ -64,7 +64,11 @@ export class ProductsController {
     @Query('page') page: number,
     @Query('perPage') perPage: number,
   ) {
-    return await this.productsService.getProductsByOtherUserId(id,page, perPage);
+    return await this.productsService.getProductsByOtherUserId(
+      id,
+      page,
+      perPage,
+    );
   }
 
   @Put(':id')

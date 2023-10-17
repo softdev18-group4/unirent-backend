@@ -72,5 +72,4 @@ export class PaymentService {
       throw new err
     }
   }
-
 }

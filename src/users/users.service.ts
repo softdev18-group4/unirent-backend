@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -57,5 +62,40 @@ export class UsersService {
 
   async findByEmail(email: string) {
     return await this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    currentUser,
+  ): Promise<User> {
+    const { firstName, lastName, password, profileImage } = updateUserDto;
+    try {
+      const existingUser = this.prisma.user.findUnique({ where: { id } });
+
+      if (!existingUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      if ((await existingUser).id !== currentUser.id) {
+        throw new BadRequestException(
+          'You do not have permission to update this user',
+        );
+      }
+
+      const updateUser = this.prisma.user.update({
+        where: { id },
+        data: {
+          firstName,
+          lastName,
+          password,
+          profileImage,
+        },
+      });
+
+      return updateUser;
+    } catch (error) {
+      throw new BadRequestException('Failed to update user');
+    }
   }
 }

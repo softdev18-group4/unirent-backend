@@ -151,19 +151,18 @@ export class ProductsService {
                 lastName: true,
               },
             },
-          }
+          },
         }),
         this.prisma.product.count(),
       ]);
-  
+
       const totalPages = Math.ceil(totalCount / perPage);
-  
+
       return {
         data: query,
         currentPage: page,
         totalPages,
       };
-
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -260,23 +259,34 @@ export class ProductsService {
   async getProductsByUserId(user, page, perPage) {
     try {
       const skip = (page - 1) * perPage;
-      const userProduct = await this.prisma.product.findMany({
-        where: { ownerId: user.id },
-        include: {
-          rentalOptions: true,
-          reviews: true,
-          owner: {
-            select: {
-              firstName: true,
-              lastName: true,
+      const [userProducts, totalProducts] = await Promise.all([
+        this.prisma.product.findMany({
+          where: { ownerId: user.id },
+          include: {
+            rentalOptions: true,
+            reviews: true,
+            owner: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
             },
           },
-        },
-        skip: skip,
-        take: +perPage,
-      });
+          skip: skip,
+          take: +perPage,
+        }),
+        this.prisma.product.count({
+          where: { ownerId: user.id },
+        }),
+      ]);
 
-      return userProduct; // Array of products associated with the user
+      const totalPages = Math.ceil(totalProducts / perPage);
+
+      return {
+        userProducts, // Array of products associated with the user
+        currentPage: page,
+        totalPages,
+      };
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -294,7 +304,7 @@ export class ProductsService {
             select: {
               firstName: true,
               lastName: true,
-              profileImage:true,
+              profileImage: true,
             },
           },
         },
@@ -435,21 +445,23 @@ export class ProductsService {
       }
 
       // Filter products based on the search criteria
-      const filteredProducts = (await allProducts).filter((product) => {
-        for (const property of propertiesToSearch) {
-          const propertyValue = getProperty(product, property);
-          if (
-            propertyValue &&
-            propertyValue
-              .toString()
-              .toLowerCase()
-              .includes(keyword.toLowerCase())
-          ) {
-            return true; // Found a match, include this product
+      const filteredProducts = (await allProducts.userProducts).filter(
+        (product) => {
+          for (const property of propertiesToSearch) {
+            const propertyValue = getProperty(product, property);
+            if (
+              propertyValue &&
+              propertyValue
+                .toString()
+                .toLowerCase()
+                .includes(keyword.toLowerCase())
+            ) {
+              return true; // Found a match, include this product
+            }
           }
-        }
-        return false; // No match found for this product
-      });
+          return false; // No match found for this product
+        },
+      );
 
       const startIndex = (page - 1) * perPage;
       const endIndex = startIndex + perPage;
