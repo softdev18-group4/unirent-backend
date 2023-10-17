@@ -138,11 +138,32 @@ export class ProductsService {
   async findByPagination(page: number = 1, perPage: number = 5) {
     try {
       const skip = (page - 1) * perPage;
-      const query = await this.prisma.product.findMany({
-        skip: skip,
-        take: +perPage,
-      });
-      return query;
+      const [query, totalCount] = await Promise.all([
+        this.prisma.product.findMany({
+          skip: skip,
+          take: +perPage,
+          include: {
+            rentalOptions: true,
+            reviews: true,
+            owner: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          }
+        }),
+        this.prisma.product.count(),
+      ]);
+  
+      const totalPages = Math.ceil(totalCount / perPage);
+  
+      return {
+        data: query,
+        currentPage: page,
+        totalPages,
+      };
+
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
