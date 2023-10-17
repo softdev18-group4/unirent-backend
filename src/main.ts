@@ -3,6 +3,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { json, raw } from "body-parser"
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,6 +36,11 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   const configService = app.get(ConfigService);
+
+  app.use("/webhook",raw({ type: "application/json" }))
+  app.use(json())
+
+  //app.use(require("body-parser").raw({type: "*/*"}));
   const port = configService.get<number>('APP_PORT');
   await app.listen(port);
 }

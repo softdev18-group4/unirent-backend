@@ -20,11 +20,6 @@ export class CreateOrderDto {
   rentalId: string;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  status: string;
-
-  @ApiProperty()
   @IsInt()
   @IsNotEmpty()
   rentTime: number;

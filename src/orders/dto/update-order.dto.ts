@@ -18,4 +18,9 @@ export class UpdateOrderDto {
   @ApiProperty()
   @IsOptional()
   amount?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  transactionId?: string;
+
 }

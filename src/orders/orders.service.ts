@@ -72,7 +72,6 @@ export class OrdersService {
             productId: productId,
             userId: currentUser.id,
             rentalId: createOrderDto.rentalId,
-            status: createOrderDto.status,
             rentTime: createOrderDto.rentTime,
             amount: rentOption.priceRate,
           },
@@ -90,7 +89,6 @@ export class OrdersService {
             productId: productId,
             bookingUserId: currentUser.id,
             rentalId: createOrderDto.rentalId,
-            status: createOrderDto.status,
             rentTime: createOrderDto.rentTime,
           },
         });
@@ -162,6 +160,7 @@ export class OrdersService {
           status: updateOrderDto.status,
           rentTime: updateOrderDto.rentTime,
           amount: updateOrderDto.amount,
+          transactionId: updateOrderDto.transactionId
         },
       });
 
