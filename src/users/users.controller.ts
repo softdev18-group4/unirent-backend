@@ -64,10 +64,9 @@ export class UsersController {
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
   update(
-    @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     @GetUser() currentUser,
   ) {
-    return this.usersService.update(id, updateUserDto, currentUser);
+    return this.usersService.update(updateUserDto, currentUser);
   }
 }
