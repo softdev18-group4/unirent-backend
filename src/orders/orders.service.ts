@@ -8,7 +8,6 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { AllExceptionsFilter } from '@/http-exception.filter';
 import { PrismaService } from '@/prisma/prisma.service';
-import { UpdateProductDto } from '@/products/dto/update-product.dto';
 
 function getProperty(obj, path) {
   const keys = path.split('.');
@@ -77,7 +76,6 @@ export class OrdersService {
             amount: rentOption.priceRate,
           },
         });
-        console.log('newOrder: ', newOrder);
 
         await this.prisma.product.update({
           where: { id: productId },
@@ -156,21 +154,9 @@ export class OrdersService {
         },
       });
 
-      const updateBooking = await this.prisma.booking.update({
-        where: {
-          productId: existingOrder.product.id,
-        },
-        data: {
-          rentalId: updateOrderDto.rentalId,
-          status: updateOrderDto.status,
-          rentTime: updateOrderDto.rentTime,
-        },
-      });
-
       return {
         message: 'update success',
         order: updateOrder,
-        booking: updateBooking,
       };
     } catch (error) {
       throw new Error(error);
