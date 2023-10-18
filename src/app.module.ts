@@ -12,7 +12,6 @@ import { UploadModule } from './upload/upload.module';
 import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { ConversationModule } from './chat/conversation/conversation.module';
-import { BookingModule } from './booking/booking.module';
 import { PaymentController } from './payment/payment.controller';
 import { PaymentModule } from './payment/payment.module';
 import { PaymentService } from './payment/payment.service';
