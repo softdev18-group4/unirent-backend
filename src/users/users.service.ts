@@ -64,10 +64,7 @@ export class UsersService {
     return await this.prisma.user.findUnique({ where: { email } });
   }
 
-  async update(
-    updateUserDto: UpdateUserDto,
-    currentUser,
-  ): Promise<User> {
+  async update(updateUserDto: UpdateUserDto, currentUser): Promise<User> {
     const { firstName, lastName, password, profileImage } = updateUserDto;
     try {
       const updateUser = this.prisma.user.update({
