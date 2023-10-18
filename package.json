@@ -37,6 +37,7 @@
     "class-validator": "^0.14.0",
     "google-auth-library": "^9.1.0",
     "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
     "nestjs-minio-client": "^2.1.0",
     "passport": "^0.6.0",
     "passport-google-oauth2": "^0.2.0",

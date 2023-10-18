@@ -3,7 +3,6 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -26,24 +25,28 @@ function getProperty(obj, path) {
 @Injectable()
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
+
   async create(createOrderDto: CreateOrderDto, currentUser, productId) {
     try {
       const product = await this.prisma.product.findUnique({
         where: { id: productId },
       });
+      console.log(product);
 
       const rentOption = await this.prisma.rentalOption.findUnique({
         where: { id: createOrderDto.rentalId },
       });
+      console.log(rentOption);
 
       // const date = new Date();
+      // const rentTime = createOrderDto.rentTime;
 
       // if (rentOption.type.toLowerCase() === 'daily') {
-      //   date.setDate(date.getDate() + createOrderDto.rentTime);
+      //   date.setDate(date.getDate() + rentTime);
       // } else if (rentOption.type.toLowerCase() === 'weekly') {
-      //   date.setDate(date.getDate() + createOrderDto.rentTime * 7);
+      //   date.setDate(date.getDate() + rentTime * 7);
       // } else if (rentOption.type.toLowerCase() === 'monthly') {
-      //   date.setMonth(date.getMonth() + createOrderDto.rentTime);
+      //   date.setMonth(date.getMonth() + rentTime);
       // } else {
       //   throw new BadRequestException('Invalid rent type');
       // }
@@ -74,6 +77,7 @@ export class OrdersService {
             amount: rentOption.priceRate,
           },
         });
+        console.log('newOrder: ', newOrder);
 
         await this.prisma.product.update({
           where: { id: productId },
@@ -82,19 +86,9 @@ export class OrdersService {
           },
         });
 
-        const newBooking = await this.prisma.booking.create({
-          data: {
-            productId: productId,
-            bookingUserId: currentUser.id,
-            rentalId: createOrderDto.rentalId,
-            rentTime: createOrderDto.rentTime,
-          },
-        });
-
         return {
           message: 'Order created successfully',
           order: newOrder,
-          booking: newBooking,
         };
       }
     } catch (error) {

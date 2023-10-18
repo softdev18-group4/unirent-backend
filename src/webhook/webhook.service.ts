@@ -22,31 +22,36 @@ export class WebhookService {
   }
 
   async createTransaction(req: Request) {
-  
-    const endpointSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
+    const endpointSecret = this.configService.get<string>(
+      'STRIPE_WEBHOOK_SECRET',
+    );
     let event;
     try {
-      event = this.stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], endpointSecret);
+      event = this.stripe.webhooks.constructEvent(
+        req.body,
+        req.headers['stripe-signature'],
+        endpointSecret,
+      );
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return;
     }
 
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntentSucceeded = await event.data.object;
-        console.log(paymentIntentSucceeded)
+        console.log(paymentIntentSucceeded);
 
-        if(paymentIntentSucceeded.status === "succeeded"){
-          try{
-            const order = await this.prisma.order.update({
-              where:{transactionId: paymentIntentSucceeded.id},
-              data:{
-                  status:"succeeded"
-              }
-            })
-          }catch(err){
-            throw new err
+        if (paymentIntentSucceeded.status === 'succeeded') {
+          try {
+            await this.prisma.order.update({
+              where: { transactionId: paymentIntentSucceeded.id },
+              data: {
+                status: 'succeeded',
+              },
+            });
+          } catch (err) {
+            throw new err();
           }
         }
         break;
@@ -59,6 +64,6 @@ export class WebhookService {
         console.log(`Unhandled event type ${event.type}`);
     }
 
-    return { messege: "payment success" }
+    return { messege: 'payment success' };
   }
 }

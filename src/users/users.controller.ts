@@ -63,10 +63,7 @@ export class UsersController {
   @Put(':id')
   @UseGuards(JwtGuard)
   @ApiBearerAuth('JWT-auth')
-  update(
-    @Body() updateUserDto: UpdateUserDto,
-    @GetUser() currentUser,
-  ) {
+  update(@Body() updateUserDto: UpdateUserDto, @GetUser() currentUser) {
     return this.usersService.update(updateUserDto, currentUser);
   }
 }
