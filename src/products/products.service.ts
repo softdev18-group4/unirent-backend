@@ -114,6 +114,7 @@ export class ProductsService {
 
   async findAll() {
     const allproduct = this.prisma.product.findMany({
+      where: { availability: true },
       include: {
         rentalOptions: true,
         owner: {
@@ -142,6 +143,7 @@ export class ProductsService {
         this.prisma.product.findMany({
           skip: skip,
           take: +perPage,
+          where: { availability: true },
           include: {
             rentalOptions: true,
             reviews: true,
