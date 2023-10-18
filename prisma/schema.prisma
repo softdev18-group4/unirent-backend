@@ -43,6 +43,7 @@ model Product {
   availability   Boolean
   availableDays  AvailableDays
   orders         Order[]        @relation("orderProduct")
+  totalRating Float  @default(0)
 
   @@map("products")
 }
