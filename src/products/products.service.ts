@@ -155,7 +155,9 @@ export class ProductsService {
             },
           },
         }),
-        this.prisma.product.count(),
+        this.prisma.product.count({
+          where: { availability: true },
+        }),
       ]);
 
       const totalPages = Math.ceil(totalCount / perPage);
