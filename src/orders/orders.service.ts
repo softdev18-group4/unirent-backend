@@ -177,9 +177,6 @@ export class OrdersService {
         throw new BadRequestException('Permission Denied');
       }
 
-      await this.prisma.booking.deleteMany({
-        where: { productId: existingOrder.productId },
-      });
       await this.prisma.product.update({
         where: { id: existingOrder.productId },
         data: {
