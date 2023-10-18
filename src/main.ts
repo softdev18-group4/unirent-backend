@@ -3,7 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { raw } from 'body-parser';
+import { raw, json } from 'body-parser';
 import * as morgan from 'morgan';
 
 async function bootstrap() {
@@ -46,7 +46,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
-
+  app.use(json());
   app.use('/webhook', raw({ type: 'application/json' }));
 
   const port = configService.get<number>('APP_PORT');
