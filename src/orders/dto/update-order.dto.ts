@@ -22,5 +22,4 @@ export class UpdateOrderDto {
   @ApiProperty()
   @IsOptional()
   transactionId?: string;
-
 }

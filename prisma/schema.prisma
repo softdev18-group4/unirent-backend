@@ -25,7 +25,6 @@ model User {
   conversationIDs String[]       @db.ObjectId
   conversation    Conversation[] @relation(fields: [conversationIDs], references: [id])
   messages        Message[]      @relation("userMessages")
-  booking         Booking[]      @relation("userBooking")
 
   @@map("users")
 }
@@ -44,7 +43,6 @@ model Product {
   availability   Boolean
   availableDays  AvailableDays
   orders         Order[]        @relation("orderProduct")
-  booking        Booking[]      @relation("productBooking")
 
   @@map("products")
 }
@@ -56,7 +54,6 @@ model RentalOption {
   type      String
   priceRate Float
   order     Order[]   @relation("rentalOrder")
-  booking   Booking[] @relation("rentalBooking")
 
   // @@unique([productId, type], name: "UniqueRentalTypePerProduct")
   @@map("rental_options")
@@ -148,19 +145,4 @@ model Message {
   seen           Boolean      @default(false)
 
   @@map("messages")
-}
-
-model Booking {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
-  productId     String       @unique @db.ObjectId
-  product       Product      @relation("productBooking", fields: [productId], references: [id])
-  bookingUserId String       @db.ObjectId
-  user          User         @relation("userBooking", fields: [bookingUserId], references: [id])
-  rentalId      String       @db.ObjectId
-  rentalOption  RentalOption @relation("rentalBooking", fields: [rentalId], references: [id])
-  status        String       @default("waiting")
-  rentTime      Int
-  startRent     DateTime     @default(now())
-
-  @@map("booking")
 }
