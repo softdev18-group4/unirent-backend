@@ -26,6 +26,8 @@ services:
     ports:
       - '${APP_PORT}:${APP_PORT}'
     restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - unirent
 
