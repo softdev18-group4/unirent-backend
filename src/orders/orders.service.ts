@@ -3,7 +3,6 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -25,29 +24,29 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
+
   async create(createOrderDto: CreateOrderDto, currentUser, productId) {
     try {
-      // if (!currentUser) {
-      //   throw new UnauthorizedException('Unauthorized');
-      // }
-    console.log(currentUser)
       const product = await this.prisma.product.findUnique({
         where: { id: productId },
       });
+      console.log(product);
 
       const rentOption = await this.prisma.rentalOption.findUnique({
         where: { id: createOrderDto.rentalId },
       });
+      console.log(rentOption);
 
       // const date = new Date();
+      // const rentTime = createOrderDto.rentTime;
 
       // if (rentOption.type.toLowerCase() === 'daily') {
-      //   date.setDate(date.getDate() + createOrderDto.rentTime);
+      //   date.setDate(date.getDate() + rentTime);
       // } else if (rentOption.type.toLowerCase() === 'weekly') {
-      //   date.setDate(date.getDate() + createOrderDto.rentTime * 7);
+      //   date.setDate(date.getDate() + rentTime * 7);
       // } else if (rentOption.type.toLowerCase() === 'monthly') {
-      //   date.setMonth(date.getMonth() + createOrderDto.rentTime);
+      //   date.setMonth(date.getMonth() + rentTime);
       // } else {
       //   throw new BadRequestException('Invalid rent type');
       // }
@@ -69,7 +68,6 @@ export class OrdersService {
         console.log(product.availability);
         throw new BadRequestException('Product not available.');
       } else {
-
         const newOrder = await this.prisma.order.create({
           data: {
             productId: productId,
@@ -79,6 +77,7 @@ export class OrdersService {
             amount: rentOption.priceRate,
           },
         });
+        console.log('newOrder: ', newOrder);
 
         await this.prisma.product.update({
           where: { id: productId },
@@ -86,19 +85,10 @@ export class OrdersService {
             availability: false,
           },
         });
-    
-        const newBooking = await this.prisma.booking.create({
-          data: {
-            productId: productId,
-            bookingUserId: currentUser.id,
-            rentalId: createOrderDto.rentalId,
-            rentTime: createOrderDto.rentTime,
-          },
-        });
+
         return {
           message: 'Order created successfully',
           order: newOrder,
-          booking: newBooking,
         };
       }
     } catch (error) {
@@ -162,7 +152,7 @@ export class OrdersService {
           status: updateOrderDto.status,
           rentTime: updateOrderDto.rentTime,
           amount: updateOrderDto.amount,
-          transactionId: updateOrderDto.transactionId
+          transactionId: updateOrderDto.transactionId,
         },
       });
 
@@ -204,12 +194,12 @@ export class OrdersService {
       await this.prisma.booking.deleteMany({
         where: { productId: existingOrder.productId },
       });
-      await this.prisma.product.update({ 
+      await this.prisma.product.update({
         where: { id: existingOrder.productId },
-        data:{
-          availability:true
-        }
-      })
+        data: {
+          availability: true,
+        },
+      });
       await this.prisma.order.delete({ where: { id } });
 
       return { message: 'Deleted successfully' };

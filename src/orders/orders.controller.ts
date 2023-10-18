@@ -25,12 +25,16 @@ export class OrdersController {
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtGuard)
   @Post(':productId')
-  create(
+  async create(
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() currentUser,
     @Param('productId') productId: string,
   ) {
-    return this.ordersService.create(createOrderDto, currentUser, productId);
+    return await this.ordersService.create(
+      createOrderDto,
+      currentUser,
+      productId,
+    );
   }
 
   @Get()

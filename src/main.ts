@@ -3,17 +3,29 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { json, raw } from "body-parser"
-
+import { raw } from 'body-parser';
+import * as morgan from 'morgan';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
+
+  app.use(
+    morgan('common', {
+      stream: {
+        write: (message) => {
+          console.log(message);
+        },
+      },
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Unirent API')
@@ -35,12 +47,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const configService = app.get(ConfigService);
+  app.use('/webhook', raw({ type: 'application/json' }));
 
-  app.use("/webhook",raw({ type: "application/json" }))
-  app.use(json())
-
-  //app.use(require("body-parser").raw({type: "*/*"}));
   const port = configService.get<number>('APP_PORT');
   await app.listen(port);
 }
