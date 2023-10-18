@@ -32,7 +32,6 @@ import { WebhookModule } from './webhook/webhook.module';
     OrdersModule,
     CouponsModule,
     ConversationModule,
-    BookingModule,
     PaymentModule,
     WebhookModule,
   ],
