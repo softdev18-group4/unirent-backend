@@ -25,13 +25,9 @@ function getProperty(obj, path) {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(createOrderDto: CreateOrderDto, currentUser, productId) {
     try {
-      // if (!currentUser) {
-      //   throw new UnauthorizedException('Unauthorized');
-      // }
-    console.log(currentUser)
       const product = await this.prisma.product.findUnique({
         where: { id: productId },
       });
@@ -69,7 +65,6 @@ export class OrdersService {
         console.log(product.availability);
         throw new BadRequestException('Product not available.');
       } else {
-
         const newOrder = await this.prisma.order.create({
           data: {
             productId: productId,
@@ -86,7 +81,7 @@ export class OrdersService {
             availability: false,
           },
         });
-    
+
         const newBooking = await this.prisma.booking.create({
           data: {
             productId: productId,
@@ -95,6 +90,7 @@ export class OrdersService {
             rentTime: createOrderDto.rentTime,
           },
         });
+
         return {
           message: 'Order created successfully',
           order: newOrder,
@@ -162,7 +158,7 @@ export class OrdersService {
           status: updateOrderDto.status,
           rentTime: updateOrderDto.rentTime,
           amount: updateOrderDto.amount,
-          transactionId: updateOrderDto.transactionId
+          transactionId: updateOrderDto.transactionId,
         },
       });
 
@@ -204,12 +200,12 @@ export class OrdersService {
       await this.prisma.booking.deleteMany({
         where: { productId: existingOrder.productId },
       });
-      await this.prisma.product.update({ 
+      await this.prisma.product.update({
         where: { id: existingOrder.productId },
-        data:{
-          availability:true
-        }
-      })
+        data: {
+          availability: true,
+        },
+      });
       await this.prisma.order.delete({ where: { id } });
 
       return { message: 'Deleted successfully' };
