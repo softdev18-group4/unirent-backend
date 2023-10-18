@@ -20,7 +20,11 @@ export class GoogleOauthGuard implements CanActivate {
 
     try {
       const payload = await this.validate(token);
-      request.user = payload; // You can store the user data in the request object
+      request.user = {
+        email: payload.email,
+        firstName: payload.given_name,
+        lastName: payload.family_name,
+      };
       return true;
     } catch (error) {
       return false;
