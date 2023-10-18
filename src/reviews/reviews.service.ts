@@ -23,14 +23,30 @@ export class ReviewsService {
         throw new NotFoundException('Product not found');
       }
 
-      return await this.prisma.review.create({
+      const createdReview = await this.prisma.review.create({
+          data: {
+            text: text,
+            rating: rating,
+            reviewerId: currentUser.id as string,
+            productId: id,
+          },
+        });
+        
+      const aggregationRating = await this.prisma.review.aggregate({
+        _avg: {
+          rating: true,
+        }
+      })
+
+      await this.prisma.product.update({ 
+        where: { id },
         data: {
-          text: text,
-          rating: rating,
-          reviewerId: currentUser.id as string,
-          productId: id,
-        },
+          totalRating: aggregationRating._avg.rating
+        }
       });
+
+      return createdReview
+
     } catch (error) {
       throw new BadRequestException('Cannot create review');
     }
